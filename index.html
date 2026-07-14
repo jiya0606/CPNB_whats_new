@@ -12,26 +12,46 @@
   button{font-family:inherit;cursor:pointer;}
 
   /* ══════════ PANEL CARD SHELL ══════════ */
-  .wn-card{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;}
+  .wn-card{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;padding:14px 0;}
   .wn-card.in-view{opacity:1;transform:none;}
+  .wn-card + .wn-card{border-top:1px solid #ededed;}   /* separator between suggestions */
+
+  .wn-inner{padding:14px;border-radius:10px;border:1px solid transparent;}
+  .is-new .wn-inner{background:#eef3fb;border-color:#dce6f4;}   /* New suggestions read as a tinted block */
 
   .mock{height:150px;border-radius:8px;background:#f7f7f7;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;}
+  .is-new .mock{background:#e4ecf7;}
+
+  .wn-badge{display:inline-block;margin:14px 0 6px;background:#1B365D;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:5px;padding:4px 10px;}
   .wn-title{font-size:16px;font-weight:700;line-height:1.35;margin:16px 0 4px;}
-  .wn-pill{display:inline-block;vertical-align:2px;margin-left:3px;font-size:10px;font-weight:600;color:#616161;background:#f0f0f0;border-radius:5px;padding:2px 7px;letter-spacing:.01em;white-space:nowrap;}
+  .wn-badge + .wn-title{margin-top:0;}
   .wn-desc{font-size:13px;color:#616161;line-height:1.55;margin:0;}
   .wn-try{margin-top:14px;background:#242424;color:#fff;border:none;border-radius:6px;height:32px;padding:0 16px;font-size:13px;font-weight:600;}
   .wn-try:hover{background:#000;}
-  .wn-more{display:block;margin-top:10px;font-size:11px;color:#8a8a8a;line-height:1.45;}
+  .wn-more{margin-top:10px;font-size:11px;color:#8a8a8a;line-height:1.45;}
   .wn-more a{color:#0f6cbd;}
 
-  /* shared mock primitives */
-  .card-surface{background:#fff;border-radius:7px;box-shadow:0 2px 10px rgba(0,0,0,.08);}
-  .ln{display:block;height:4px;border-radius:2px;background:#e4e4e4;}
-  .cursor{position:absolute;width:11px;height:14px;pointer-events:none;z-index:5;}
+  /* ── prototype-only view switcher ── */
+  #wn-mode{position:absolute;left:14px;bottom:14px;z-index:60;display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #e6e6e6;border-radius:9px;padding:7px 9px;box-shadow:0 2px 12px rgba(0,0,0,.09);font-size:11px;color:#8a8a8a;}
+  #wn-mode .seg{display:flex;background:#f2f2f2;border-radius:6px;padding:2px;gap:2px;}
+  #wn-mode .seg button{border:none;background:transparent;border-radius:5px;padding:5px 10px;font-size:11px;font-weight:600;color:#616161;}
+  #wn-mode .seg button.on{background:#242424;color:#fff;}
 
-  /* ══════════ CARD 1 — Select References: cursor walks the 3 tabs ══════════ */
+  /* ══════════ SHARED MOCK PRIMITIVES ══════════ */
+  /* A miniature CPNB window: page/canvas on the left, chat rail on the right. */
+  .frame{position:relative;width:238px;height:128px;background:#fff;border-radius:7px;box-shadow:0 2px 10px rgba(0,0,0,.09);display:flex;overflow:hidden;}
+  .frame.col{flex-direction:column;}
+  .pane{padding:8px;min-width:0;}
+  .pane-doc{flex:1;position:relative;border-right:1px solid #f1f1f1;}
+  .pane-chat{flex:0 0 92px;background:#fbfbfd;position:relative;}
+  .pane-hd{font-size:6px;color:#a8a8a8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;}
+  .ln{display:block;height:4px;border-radius:2px;background:#e4e4e4;margin-bottom:6px;}
+  .cursor{position:absolute;width:11px;height:14px;pointer-events:none;z-index:6;}
+  .card-surface{background:#fff;border-radius:7px;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+
+  /* ══════════ CARD 1 — Select References: cursor walks Files / Meetings / Emails ══════════ */
   .c1-dlg{position:relative;width:214px;padding:9px 10px 8px;}
-  .c1-ttl{font-size:9px;font-weight:700;color:#242424;margin-bottom:6px;}
+  .c1-ttl{font-size:9px;font-weight:700;margin-bottom:6px;}
   .c1-search{display:flex;align-items:center;gap:5px;border-bottom:1px solid #e8e8e8;padding-bottom:5px;margin-bottom:6px;}
   .c1-tabs{display:flex;gap:3px;margin-bottom:6px;}
   .c1-tab{font-size:8px;font-weight:600;color:#616161;padding:3px 7px;border-radius:20px;white-space:nowrap;}
@@ -59,39 +79,67 @@
 
   .c1-cursor{top:36px;left:0;transform:translate(20px,0);}
   .in-view .c1-cursor{animation:c1cur 2.7s cubic-bezier(.5,.05,.2,1) both;}
-  @keyframes c1cur{
-    0%,26%{transform:translate(20px,0);}
-    36%,59%{transform:translate(58px,0);}
-    69%,100%{transform:translate(112px,0);}
+  @keyframes c1cur{0%,26%{transform:translate(20px,0);}36%,59%{transform:translate(58px,0);}69%,100%{transform:translate(112px,0);}}
+
+  /* ══════════ CARD 2 — select in chat → drag across → text lands on the page ══════════ */
+  .c2-msg .ln{margin-bottom:5px;}
+  .in-view .c2-sel{animation:c2sel 2.8s ease both;}
+  @keyframes c2sel{0%,8%{background:#e4e4e4;}15%,70%{background:#bcd3f0;}78%,100%{background:#e4e4e4;}}
+
+  .c2-ghost{position:absolute;left:152px;top:36px;width:76px;padding:5px 6px;border-radius:5px;background:#fff;border:1px solid #dbe5f3;box-shadow:0 6px 16px rgba(20,40,80,.2);opacity:0;z-index:5;}
+  .c2-ghost .ln{background:#bcd3f0;margin-bottom:4px;}
+  .c2-ghost .ln:last-child{margin-bottom:0;width:64%;}
+  .in-view .c2-ghost{animation:c2ghost 2.8s cubic-bezier(.3,.7,.3,1) both;}
+  @keyframes c2ghost{
+    0%,26%{opacity:0;transform:translate(0,0) scale(.95);}
+    33%{opacity:1;transform:translate(0,0) scale(1);}
+    68%{opacity:1;transform:translate(-118px,26px) scale(1);}
+    76%,100%{opacity:0;transform:translate(-118px,29px) scale(.97);}
+  }
+  .c2-landed .ln{opacity:0;}
+  .in-view .c2-landed .ln{animation:c2land .6s ease both;}
+  .in-view .c2-landed .ln:nth-child(1){animation-delay:2.14s;}
+  .in-view .c2-landed .ln:nth-child(2){animation-delay:2.27s;}
+  @keyframes c2land{0%{opacity:0;background:#bcd3f0;transform:translateY(-3px);}55%{opacity:1;background:#bcd3f0;transform:none;}100%{opacity:1;background:#e4e4e4;}}
+  .c2-cursor{top:0;left:0;}
+  .in-view .c2-cursor{animation:c2cur 2.8s cubic-bezier(.3,.7,.3,1) both;}
+  @keyframes c2cur{
+    0%,16%{transform:translate(202px,34px);}
+    26%{transform:translate(193px,44px);}
+    33%{transform:translate(191px,47px);}
+    68%,100%{transform:translate(73px,73px);}
   }
 
-  /* ══════════ CARD 2 — chat answer drops onto page, image tile drags in ══════════ */
-  .c2-page{position:relative;width:196px;height:112px;padding:10px 11px;overflow:hidden;}
-  .c2-page .ln{margin-bottom:6px;}
-  .c2-drop{opacity:0;transform:translate(26px,-40px) scale(.92);border-radius:5px;background:#f3f3f8;border:1px solid #e6e6ef;padding:6px 7px;margin-bottom:7px;}
-  .c2-drop span{display:block;height:4px;border-radius:2px;background:#c9c9d8;margin-bottom:4px;}
-  .c2-drop span:last-child{margin-bottom:0;width:62%;}
-  .in-view .c2-drop{animation:c2drop .75s cubic-bezier(.24,.85,.3,1) .2s forwards;}
-  @keyframes c2drop{to{opacity:1;transform:translate(0,0) scale(1);}}
-  .c2-img{position:absolute;right:11px;bottom:11px;width:52px;height:36px;border-radius:5px;background:linear-gradient(135deg,#e8e8ee,#d6d6e2);display:flex;align-items:center;justify-content:center;opacity:0;transform:translate(52px,10px) rotate(6deg);box-shadow:0 3px 9px rgba(0,0,0,.12);}
-  .in-view .c2-img{animation:c2img .8s cubic-bezier(.24,.85,.3,1) 1.05s forwards;}
-  @keyframes c2img{to{opacity:1;transform:translate(0,0) rotate(0);}}
+  /* ══════════ CARD 3 — prompt the agent → generating → templated deliverable ══════════ */
+  .c3-stage{flex:1;position:relative;padding:8px;}
+  .c3-composer{flex:0 0 26px;border-top:1px solid #f1f1f1;display:flex;align-items:center;gap:5px;padding:0 7px;}
+  .c3-prompt{flex:1;font-size:6.8px;color:#242424;white-space:nowrap;overflow:hidden;width:0;}
+  .in-view .c3-prompt{animation:c3type 1s steps(28,end) .2s both;}
+  @keyframes c3type{from{width:0;}to{width:132px;}}
+  .c3-send{width:13px;height:13px;border-radius:50%;background:#242424;display:flex;align-items:center;justify-content:center;flex:0 0 13px;}
+  .in-view .c3-send{animation:c3send .45s ease 1.25s;}
+  @keyframes c3send{50%{transform:scale(.84);}}
 
-  /* ══════════ CARD 3 — "Still working on it…" → finished doc ══════════ */
-  .c3-wrap{position:relative;width:190px;height:112px;display:flex;align-items:center;justify-content:center;}
-  .c3-gen{position:absolute;display:flex;align-items:center;gap:8px;}
-  .c3-gen .lbl{font-size:9px;color:#8a8a8a;}
-  .in-view .c3-gen{animation:c3gen 2.1s ease both;}
-  @keyframes c3gen{0%,42%{opacity:1;transform:none;}56%,100%{opacity:0;transform:scale(.94);}}
-  .c3-shimmer{width:58px;height:4px;border-radius:2px;background:linear-gradient(90deg,#e2e2e2 25%,#f6f6f6 50%,#e2e2e2 75%);background-size:200% 100%;}
+  .c3-gen{position:absolute;left:9px;top:36px;display:flex;align-items:center;gap:6px;opacity:0;}
+  .c3-gen .lbl{font-size:7px;color:#8a8a8a;}
+  .in-view .c3-gen{animation:c3gen 2.9s ease both;}
+  @keyframes c3gen{0%,48%{opacity:0;}54%,64%{opacity:1;}72%,100%{opacity:0;}}
+  .c3-shimmer{width:50px;height:4px;border-radius:2px;background:linear-gradient(90deg,#e2e2e2 25%,#f6f6f6 50%,#e2e2e2 75%);background-size:200% 100%;}
   .in-view .c3-shimmer{animation:c3sh 1s linear infinite;}
   @keyframes c3sh{to{background-position:-200% 0;}}
-  .c3-doc{position:absolute;width:118px;padding:9px 10px;opacity:0;transform:scale(.9) translateY(8px);}
-  .c3-doc .bar{height:16px;border-radius:4px 4px 0 0;background:#2b579a;margin:-9px -10px 8px;display:flex;align-items:center;padding:0 7px;}
-  .c3-doc .bar b{font-size:7px;color:#fff;font-weight:700;letter-spacing:.04em;}
-  .c3-doc .ln{margin-bottom:5px;}
-  .in-view .c3-doc{animation:c3doc .7s cubic-bezier(.22,.9,.3,1) 1.05s forwards;}
-  @keyframes c3doc{to{opacity:1;transform:scale(1) translateY(0);}}
+
+  .c3-doc{position:absolute;left:50%;top:4px;width:110px;margin-left:-55px;background:#fff;border:1px solid #e6e6e6;border-radius:4px;overflow:hidden;box-shadow:0 5px 16px rgba(0,0,0,.14);opacity:0;transform:translateY(10px) scale(.95);}
+  .in-view .c3-doc{animation:c3doc .65s cubic-bezier(.22,.9,.3,1) 2.1s forwards;}
+  @keyframes c3doc{to{opacity:1;transform:translateY(0) scale(1);}}
+  .c3-band{height:14px;background:#1B365D;display:flex;align-items:center;gap:4px;padding:0 5px;}
+  .c3-band i{display:block;width:6px;height:6px;border-radius:1px;background:#fff;opacity:.92;}
+  .c3-band b{display:block;height:3px;width:28px;border-radius:1.5px;background:#fff;opacity:.5;}
+  .c3-body{padding:6px 6px 4px;}
+  .c3-body .ln{margin-bottom:4px;}
+  .c3-cols{display:flex;gap:4px;margin:5px 0 4px;}
+  .c3-cols span{flex:1;height:13px;border-radius:2px;background:#f1f4f9;border:1px solid #e6ecf5;}
+  .c3-foot{border-top:1px solid #f0f0f0;padding:3px 6px;}
+  .c3-foot span{display:block;height:2.5px;width:40%;margin:0 auto;border-radius:1.5px;background:#ededed;}
 
   /* ══════════ CARD 4 — Share popup: typing + org autocomplete ══════════ */
   .c4-dlg{width:216px;padding:10px 11px;}
@@ -115,87 +163,103 @@
   .c4-em{font-size:7.5px;color:#8a8a8a;line-height:1.35;}
   .c4-note{display:flex;gap:4px;margin-top:8px;font-size:6.8px;color:#8a8a8a;line-height:1.45;}
 
-  /* ══════════ CARD 5 — Sources flyout + connectors ══════════ */
-  .c5-fly{width:186px;padding:7px 10px;}
-  .c5-search{height:15px;border:1px solid #e6e6e6;border-radius:4px;display:flex;align-items:center;padding:0 6px;font-size:7.5px;color:#a5a5a5;margin-bottom:5px;}
-  .c5-row{display:flex;align-items:center;gap:6px;padding:2px 0;}
-  .c5-ico{width:12px;height:12px;border-radius:3px;flex:0 0 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:6px;font-weight:700;}
-  .c5-lb{flex:1;font-size:8px;color:#333;}
-  .c5-tg{width:18px;height:10px;border-radius:6px;background:#d8d8d8;flex:0 0 18px;position:relative;}
-  .c5-tg::after{content:"";position:absolute;top:1.5px;left:1.5px;width:7px;height:7px;border-radius:50%;background:#fff;transition:transform .2s;}
+  /* ══════════ CARD 5 — Sources flyout off the chat composer ══════════ */
+  .c5-canvas{flex:1;padding:8px;}
+  .c5-composer{flex:0 0 24px;border-top:1px solid #f1f1f1;display:flex;align-items:center;gap:5px;padding:0 6px;}
+  .c5-plc{flex:1;font-size:6.5px;color:#b5b5b5;}
+  .c5-chip{font-size:6.5px;font-weight:600;border-radius:4px;padding:3px 7px;background:#f0f0f0;color:#424242;}
+  .in-view .c5-chip{animation:c5chip .4s ease .3s forwards;}
+  @keyframes c5chip{to{background:#242424;color:#fff;}}
+  .c5-fly{position:absolute;right:6px;bottom:26px;width:152px;background:#fff;border:1px solid #ececec;border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.17);padding:5px;transform-origin:bottom right;opacity:0;transform:scale(.9) translateY(6px);z-index:5;}
+  .in-view .c5-fly{animation:c5fly .45s cubic-bezier(.22,.9,.3,1) .5s forwards;}
+  @keyframes c5fly{to{opacity:1;transform:none;}}
+  .c5-row{display:flex;align-items:center;gap:5px;padding:1.5px 3px;}
+  .c5-ico{width:10px;height:10px;border-radius:2px;flex:0 0 10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:5px;font-weight:700;}
+  .c5-lb{flex:1;font-size:7px;color:#333;}
+  .c5-tg{width:16px;height:9px;border-radius:5px;background:#d8d8d8;flex:0 0 16px;position:relative;}
+  .c5-tg::after{content:"";position:absolute;top:1.5px;left:1.5px;width:6px;height:6px;border-radius:50%;background:#fff;}
   .c5-tg.on{background:#242424;}
-  .c5-tg.on::after{transform:translateX(8px);}
+  .c5-tg.on::after{transform:translateX(7px);}
   .c5-div{height:1px;background:#efefef;margin:4px 0;}
   .c5-conn{opacity:0;transform:translateY(5px);}
   .in-view .c5-conn{animation:c5conn .45s cubic-bezier(.22,.9,.3,1) both;}
   @keyframes c5conn{to{opacity:1;transform:none;}}
-  .in-view .c5-conn:nth-of-type(1){animation-delay:.45s;}
-  .in-view .c5-conn:nth-of-type(2){animation-delay:.58s;}
-  .in-view .c5-conn:nth-of-type(3){animation-delay:.71s;}
-  /* the S&P toggle flips on at the end */
+  .in-view .c5-conn:nth-of-type(1){animation-delay:.95s;}
+  .in-view .c5-conn:nth-of-type(2){animation-delay:1.08s;}
+  .in-view .c5-conn:nth-of-type(3){animation-delay:1.21s;}
   .c5-flip{background:#d8d8d8;}
-  .in-view .c5-flip{animation:c5flip .45s cubic-bezier(.3,.8,.3,1) 1.25s forwards;}
+  .in-view .c5-flip{animation:c5flip .45s cubic-bezier(.3,.8,.3,1) 1.65s forwards;}
   @keyframes c5flip{to{background:#242424;}}
-  .in-view .c5-flip::after{animation:c5knob .45s cubic-bezier(.3,.8,.3,1) 1.25s forwards;}
-  @keyframes c5knob{to{transform:translateX(8px);}}
+  .in-view .c5-flip::after{animation:c5knob .45s cubic-bezier(.3,.8,.3,1) 1.65s forwards;}
+  @keyframes c5knob{to{transform:translateX(7px);}}
 
-  /* ══════════ CARD 6 — inline suggestion → Apply → text tightens ══════════ */
-  .c6-page{position:relative;width:196px;height:114px;padding:11px 12px;overflow:hidden;}
-  .c6-page .ln{margin-bottom:7px;}
-  .c6-target{background:#eceff6;position:relative;}
-  .in-view .c6-target{animation:c6tight .6s cubic-bezier(.3,.8,.3,1) 1.5s forwards;}
+  /* ══════════ CARD 6 — Suggested edits rail on a Copilot page ══════════ */
+  .pane-rail{flex:0 0 84px;background:#fbfbfd;position:relative;}
+  .c6-target{background:#dbe7f8;}
+  .in-view .c6-target{animation:c6tight .65s cubic-bezier(.3,.8,.3,1) 1.75s forwards;}
   @keyframes c6tight{to{width:58%;background:#e4e4e4;}}
-  .c6-sug{position:absolute;right:9px;bottom:9px;width:118px;padding:7px 8px;border-radius:6px;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.14);opacity:0;transform:translateY(8px) scale(.96);}
-  .in-view .c6-sug{animation:c6sug .5s cubic-bezier(.22,.9,.3,1) .5s forwards;}
+  .c6-sug{background:#fff;border:1px solid #e6e6e6;border-radius:5px;padding:5px 6px;box-shadow:0 2px 9px rgba(0,0,0,.09);opacity:0;transform:translateX(10px);}
+  .in-view .c6-sug{animation:c6sug .5s cubic-bezier(.22,.9,.3,1) .55s forwards;}
   @keyframes c6sug{to{opacity:1;transform:none;}}
-  .c6-sug .hd{font-size:7.5px;font-weight:700;color:#242424;margin-bottom:5px;}
   .c6-sug .ln{height:3px;margin-bottom:4px;}
-  .c6-apply{display:inline-block;margin-top:3px;font-size:7.5px;font-weight:600;color:#fff;background:#242424;border-radius:4px;padding:3px 9px;}
-  .in-view .c6-apply{animation:c6press .4s ease 1.25s;}
-  @keyframes c6press{50%{transform:scale(.9);background:#000;}}
+  .c6-apply{display:inline-block;margin-top:2px;font-size:7px;font-weight:600;color:#fff;background:#242424;border-radius:4px;padding:3px 8px;}
+  .in-view .c6-apply{animation:c6press .4s ease 1.45s;}
+  @keyframes c6press{50%{transform:scale(.88);background:#000;}}
+  .c6-cursor{top:0;left:0;opacity:0;}
+  .in-view .c6-cursor{animation:c6cur 2.6s cubic-bezier(.4,.6,.3,1) both;}
+  @keyframes c6cur{
+    0%,20%{opacity:0;transform:translate(196px,40px);}
+    28%{opacity:1;transform:translate(190px,50px);}
+    52%{opacity:1;transform:translate(174px,74px);}
+    60%{opacity:1;transform:translate(174px,74px);}
+    88%,100%{opacity:0;transform:translate(174px,74px);}
+  }
 
-  /* ══════════ CARD 7 — citation chip → doc panel opens on highlighted line ══════════ */
-  .c7-wrap{position:relative;width:206px;height:112px;display:flex;gap:7px;}
-  .c7-ans{flex:1;padding:10px;overflow:hidden;}
-  .c7-ans .ln{margin-bottom:6px;}
-  .c7-chip{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:3px;background:#f0f0f0;font-size:7px;font-weight:700;color:#616161;vertical-align:middle;}
-  .in-view .c7-chip{animation:c7chip .5s ease .55s forwards;}
-  @keyframes c7chip{40%{transform:scale(.82);}100%{background:#242424;color:#fff;transform:scale(1);}}
-  .c7-doc{position:absolute;right:0;top:0;width:92px;height:100%;padding:9px 8px;opacity:0;transform:translateX(28px);}
-  .in-view .c7-doc{animation:c7doc .55s cubic-bezier(.22,.85,.3,1) 1s forwards;}
-  @keyframes c7doc{to{opacity:1;transform:none;}}
-  .c7-doc .hd{font-size:7px;font-weight:700;color:#8a8a8a;margin-bottom:6px;}
-  .c7-doc .ln{margin-bottom:5px;}
-  .c7-hl{height:9px;border-radius:2px;background:#e4e4e4;margin:-2px -3px 5px;padding:0 3px;}
-  .in-view .c7-hl{animation:c7hl .5s ease 1.5s forwards;}
+  /* ══════════ CARD 7 — citation chip → source doc opens on the highlighted passage ══════════ */
+  .c7-chip{display:inline-flex;align-items:center;justify-content:center;width:11px;height:11px;border-radius:3px;background:#f0f0f0;font-size:6.5px;font-weight:700;color:#616161;vertical-align:middle;}
+  .in-view .c7-chip{animation:c7chip .5s ease .75s forwards;}
+  @keyframes c7chip{45%{transform:scale(.8);}100%{background:#1B365D;color:#fff;transform:scale(1);}}
+  .c7-src{opacity:0;transform:translateX(-10px);}
+  .in-view .c7-src{animation:c7src .55s cubic-bezier(.22,.85,.3,1) 1.15s forwards;}
+  @keyframes c7src{to{opacity:1;transform:none;}}
+  .c7-hl{height:9px;border-radius:2px;background:#ededed;margin:-2px -3px 6px;}
+  .in-view .c7-hl{animation:c7hl .5s ease 1.75s forwards;}
   @keyframes c7hl{to{background:#ffe8a3;box-shadow:0 0 0 1px #f0d68a;}}
+  .c7-cursor{top:0;left:0;}
+  .in-view .c7-cursor{animation:c7cur 2.6s cubic-bezier(.4,.6,.3,1) both;}
+  @keyframes c7cur{
+    0%,10%{transform:translate(214px,26px);}
+    28%,40%{transform:translate(178px,62px);}
+    100%{transform:translate(178px,62px);}
+  }
 
-  /* ══════════ CARD 8 — hover toolbar → model menu → answer re-streams ══════════ */
-  .c8-wrap{position:relative;width:198px;height:118px;padding:10px 11px;}
-  .c8-ans .ln{margin-bottom:6px;}
+  /* ══════════ CARD 8 — model switch → answer re-streams ══════════ */
+  .c8-rail{position:relative;width:172px;height:128px;background:#fff;border-radius:7px;box-shadow:0 2px 10px rgba(0,0,0,.09);overflow:hidden;display:flex;flex-direction:column;}
+  .c8-hd{flex:0 0 18px;border-bottom:1px solid #f2f2f2;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:7px;font-weight:700;}
+  .c8-body{flex:1;padding:8px;position:relative;}
+  .c8-cmp{flex:0 0 20px;border-top:1px solid #f2f2f2;display:flex;align-items:center;padding:0 8px;font-size:6.5px;color:#bcbcbc;}
   .c8-restream{width:0;}
   .in-view .c8-restream{animation:c8st .55s cubic-bezier(.3,.8,.3,1) both;}
   @keyframes c8st{from{width:0;}}
-  .in-view .c8-restream:nth-of-type(1){animation-delay:1.5s;width:52%;}
-  .in-view .c8-restream:nth-of-type(2){animation-delay:1.6s;width:100%;}
-  .in-view .c8-restream:nth-of-type(3){animation-delay:1.7s;width:90%;}
-  .in-view .c8-restream:nth-of-type(4){animation-delay:1.8s;width:96%;}
-  .in-view .c8-restream:nth-of-type(5){animation-delay:1.9s;width:68%;}
-  .c8-bar{display:flex;gap:4px;margin-top:8px;opacity:0;transform:translateY(4px);}
-  .in-view .c8-bar{animation:c8bar .4s ease .35s forwards;}
+  .in-view .c8-restream:nth-of-type(1){animation-delay:1.75s;width:54%;}
+  .in-view .c8-restream:nth-of-type(2){animation-delay:1.85s;width:100%;}
+  .in-view .c8-restream:nth-of-type(3){animation-delay:1.95s;width:90%;}
+  .in-view .c8-restream:nth-of-type(4){animation-delay:2.05s;width:66%;}
+  .c8-bar{display:flex;gap:4px;margin-top:9px;opacity:0;transform:translateY(4px);}
+  .in-view .c8-bar{animation:c8bar .4s ease .4s forwards;}
   @keyframes c8bar{to{opacity:1;transform:none;}}
-  .c8-btn{font-size:7.5px;font-weight:600;color:#424242;background:#f0f0f0;border-radius:4px;padding:3.5px 7px;display:flex;align-items:center;gap:3px;}
+  .c8-btn{font-size:7px;font-weight:600;color:#424242;background:#f0f0f0;border-radius:4px;padding:3.5px 7px;display:flex;align-items:center;gap:3px;}
   .c8-btn.act{background:#242424;color:#fff;}
-  .c8-menu{position:absolute;left:52px;bottom:8px;width:104px;padding:4px;border-radius:6px;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.16);opacity:0;transform:translateY(6px) scale(.96);transform-origin:bottom left;}
-  .in-view .c8-menu{animation:c8menu .45s cubic-bezier(.22,.9,.3,1) .8s forwards,c8menuOut .35s ease 1.65s forwards;}
+  .c8-menu{position:absolute;left:8px;bottom:4px;width:120px;padding:4px;border-radius:6px;background:#fff;box-shadow:0 5px 16px rgba(0,0,0,.18);border:1px solid #ececec;opacity:0;transform:translateY(6px) scale(.96);transform-origin:bottom left;z-index:5;}
+  .in-view .c8-menu{animation:c8menu .45s cubic-bezier(.22,.9,.3,1) .95s forwards,c8menuOut .35s ease 1.85s forwards;}
   @keyframes c8menu{to{opacity:1;transform:none;}}
   @keyframes c8menuOut{to{opacity:0;transform:translateY(4px) scale(.97);}}
-  .c8-opt{display:flex;align-items:center;gap:5px;font-size:7.5px;color:#333;padding:4px 6px;border-radius:4px;}
-  .c8-opt.sel{background:#f2f2f2;font-weight:600;}
+  .c8-opt{display:flex;align-items:center;gap:5px;font-size:7px;color:#333;padding:4px 6px;border-radius:4px;}
+  .c8-opt.sel{background:#eef3fb;font-weight:600;}
   .c8-dot{width:5px;height:5px;border-radius:50%;background:#c4c4c4;flex:0 0 5px;}
-  .c8-opt.sel .c8-dot{background:#242424;}
+  .c8-opt.sel .c8-dot{background:#1B365D;}
 
-  /* ══════════ CARD 9 — mind map: node expands into sub-nodes ══════════ */
+  /* ══════════ CARD 9 — mind map ══════════ */
   .c9-svg{width:100%;height:100%;}
   .c9-edge{stroke:#d4d4d4;stroke-width:1.2;fill:none;stroke-dasharray:60;stroke-dashoffset:60;}
   .in-view .c9-edge{animation:c9draw .55s ease forwards;}
@@ -206,7 +270,6 @@
   @keyframes c9pop{to{opacity:1;transform:scale(1);}}
   .in-view .c9-n0{animation-delay:.15s;}
   .in-view .c9-n1{animation-delay:.6s;} .in-view .c9-n2{animation-delay:.7s;} .in-view .c9-n3{animation-delay:.8s;}
-  /* sub-nodes expand off the top branch */
   .c9-sub{opacity:0;transform:scale(.4);transform-origin:center;transform-box:fill-box;}
   .in-view .c9-sub{animation:c9pop .5s cubic-bezier(.2,.9,.3,1.1) forwards;}
   .in-view .c9-s1{animation-delay:1.15s;} .in-view .c9-s2{animation-delay:1.28s;}
@@ -224,7 +287,6 @@
   .c10-sel{height:12px;border:1px solid #e2e2e2;border-radius:3px;display:flex;align-items:center;justify-content:space-between;padding:0 4px;font-size:7px;color:#424242;}
   .c10-chips{display:flex;gap:3px;}
   .c10-chip{font-size:6.8px;font-weight:600;color:#424242;border:1px solid #e2e2e2;border-radius:3px;padding:1.5px 5px;background:#fff;line-height:1.25;}
-  .c10-chip.pick{border-color:#c9c9c9;}
   .in-view .c10-chip.pick{animation:c10pick .45s cubic-bezier(.3,.8,.3,1) both;}
   @keyframes c10pick{to{background:#242424;border-color:#242424;color:#fff;}}
   .in-view .c10-p1{animation-delay:.5s;} .in-view .c10-p2{animation-delay:.68s;} .in-view .c10-p3{animation-delay:.86s;}
@@ -277,7 +339,7 @@
       <!-- ★ MEGAPHONE TRIGGER (What's New) -->
       <button id="wn-mega" title="What's new" aria-haspopup="dialog" style="position:relative;width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l4.5 3.2a.7.7 0 0 0 1.1-.57V7.37a.7.7 0 0 0-1.1-.57L6 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
-        <span id="wn-dot" style="position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%;background:#242424;border:1.5px solid #fff;"></span>
+        <span id="wn-dot" style="position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%;background:#1B365D;border:1.5px solid #fff;"></span>
       </button>
 
       <button title="More" style="width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
@@ -341,7 +403,6 @@
         <div style="height:1px;background:#efefef;margin:16px 0 24px;"></div>
 
         <div style="display:flex;gap:52px;flex-wrap:wrap;">
-          <!-- Summary column -->
           <section style="flex:1 1 320px;min-width:280px;max-width:420px;">
             <div style="font-size:13px;color:#8a8a8a;margin-bottom:10px;">Summary</div>
             <h1 style="font-size:26px;line-height:1.2;font-weight:700;margin:0 0 18px;letter-spacing:-.01em;">Customer Feedback Themes and Next Steps</h1>
@@ -352,7 +413,6 @@
             </div>
           </section>
 
-          <!-- Quick Create column -->
           <section style="flex:1 1 420px;min-width:340px;">
             <div style="font-size:13px;color:#8a8a8a;margin-bottom:12px;">Quick Create</div>
             <div style="display:flex;gap:14px;margin-bottom:14px;">
@@ -368,11 +428,11 @@
               </div>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:10px;">
-              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#fbe9d2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b8791d" stroke-width="1.7"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 0 2 2h1v-4H6a2 2 0 0 0-2 2Zm16 0a2 2 0 0 1-2 2h-1v-4h1a2 2 0 0 1 2 2Z"/></svg></span>Audio overview</div>
-              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e8;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f8a70" stroke-width="1.7"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9"/></svg></span>Mind map</div>
-              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#e6e1f5;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.7"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/><path d="M9 12h6M9 16h4"/></svg></span>Study guide</div>
-              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#f8dfee;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b83e8e" stroke-width="1.7"><path d="M5 20V9M12 20V4M19 20v-7"/></svg></span>Infographic</div>
-              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#217346" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></span>Spreadsheet</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#fbe9d2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b8791d" stroke-width="1.7"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 0 2 2h1v-4H6a2 2 0 0 0-2 2Zm16 0a2 2 0 0 1-2 2h-1v-4h1a2 2 0 0 1 2 2Z"/></svg></span>Audio overview</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e8;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f8a70" stroke-width="1.7"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9"/></svg></span>Mind map</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#e6e1f5;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.7"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/><path d="M9 12h6M9 16h4"/></svg></span>Study guide</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#f8dfee;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b83e8e" stroke-width="1.7"><path d="M5 20V9M12 20V4M19 20v-7"/></svg></span>Infographic</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#217346" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></span>Spreadsheet</div>
             </div>
 
             <div style="height:1px;background:#efefef;margin:30px 0 24px;"></div>
@@ -423,12 +483,21 @@
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
-          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'">Provide a detailed explanation of [topic] in this notebook</div>
-          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'">Draft an abstract with 5 citations listed from my References</div>
-          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'">Describe common themes in my notebook</div>
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;">Provide a detailed explanation of [topic] in this notebook</div>
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;">Draft an abstract with 5 citations listed from my References</div>
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;">Describe common themes in my notebook</div>
         </div>
       </div>
     </aside>
+  </div>
+
+  <!-- ══ PROTOTYPE VIEW SWITCHER (not part of the product UI) ══ -->
+  <div id="wn-mode">
+    <span>Prototype view</span>
+    <div class="seg">
+      <button id="wn-mode-returning" type="button">Returning user</button>
+      <button id="wn-mode-new" type="button">New user</button>
+    </div>
   </div>
 
   <!-- ══ SCRIM ══ -->
@@ -437,8 +506,7 @@
   <!-- ══ WHAT'S NEW PANEL ══ -->
   <div id="wn-panel" role="dialog" aria-label="What's new" aria-modal="true" style="position:absolute;top:0;right:0;height:100%;width:400px;background:#fff;box-shadow:-10px 0 34px rgba(0,0,0,.13);transform:translateX(100%);transition:transform .25s cubic-bezier(.22,.75,.3,1);z-index:50;display:flex;flex-direction:column;">
 
-    <!-- panel header -->
-    <div style="display:flex;align-items:center;gap:10px;padding:20px 20px 16px;flex:0 0 auto;">
+    <div style="display:flex;align-items:center;gap:10px;padding:20px 20px 12px;flex:0 0 auto;">
       <h2 style="font-size:19px;font-weight:700;margin:0;letter-spacing:-.01em;">What's new</h2>
       <span style="font-size:11px;font-weight:600;color:#616161;background:#f0f0f0;border-radius:5px;padding:3px 8px;">June 2026</span>
       <div style="flex:1;"></div>
@@ -447,351 +515,396 @@
       </button>
     </div>
 
-    <!-- panel scroll body -->
-    <div id="wn-body" style="flex:1;overflow-y:auto;padding:8px 20px 32px;display:flex;flex-direction:column;gap:34px;">
+    <div id="wn-body" style="flex:1;overflow-y:auto;padding:0 10px 32px;display:flex;flex-direction:column;">
 
-      <!-- ═══ CARD 1 — Select References: Files / Meetings / Emails ═══ -->
+      <!-- ═══ CARD 1 — Select References ═══ -->
       <article class="wn-card">
-        <div class="mock">
-          <div class="c1-dlg card-surface">
-            <div class="c1-ttl">Select References</div>
-            <div class="c1-search">
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.4"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
-              <span style="font-size:7.5px;color:#b0b0b0;">Search</span>
-            </div>
-            <div class="c1-tabs">
-              <span class="c1-tab">Files</span>
-              <span class="c1-tab">Meetings</span>
-              <span class="c1-tab">Emails</span>
-            </div>
-            <div class="c1-list">
-              <!-- Files -->
-              <div class="c1-group">
-                <div class="c1-row"><span class="c1-ico" style="background:#2b579a;"></span><span class="c1-meta"><b style="width:76%;"></b><i style="width:44%;"></i></span></div>
-                <div class="c1-row"><span class="c1-ico" style="background:#217346;"></span><span class="c1-meta"><b style="width:58%;"></b><i style="width:38%;"></i></span></div>
-                <div class="c1-row"><span class="c1-ico" style="background:#d24726;"></span><span class="c1-meta"><b style="width:68%;"></b><i style="width:34%;"></i></span></div>
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="c1-dlg card-surface">
+              <div class="c1-ttl">Select References</div>
+              <div class="c1-search">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.4"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+                <span style="font-size:7.5px;color:#b0b0b0;">Search</span>
               </div>
-              <!-- Meetings -->
-              <div class="c1-group">
-                <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:66%;"></b><i style="width:40%;"></i></span></div>
-                <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:80%;"></b><i style="width:32%;"></i></span></div>
-                <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:54%;"></b><i style="width:46%;"></i></span></div>
+              <div class="c1-tabs">
+                <span class="c1-tab">Files</span>
+                <span class="c1-tab">Meetings</span>
+                <span class="c1-tab">Emails</span>
               </div>
-              <!-- Emails -->
-              <div class="c1-group">
-                <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:72%;"></b><i style="width:36%;"></i></span></div>
-                <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:50%;"></b><i style="width:44%;"></i></span></div>
-                <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:64%;"></b><i style="width:30%;"></i></span></div>
-              </div>
-            </div>
-            <!-- mouse cursor -->
-            <svg class="cursor c1-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
-          </div>
-        </div>
-        <h3 class="wn-title">Pull in OneDrive files, Teams Meeting Transcripts, and Emails</h3>
-        <p class="wn-desc">Prep meeting agendas, get feedback on a draft, compare data across reports, get a cross-source to-do list, and more.</p>
-        <button class="wn-try">Try it</button>
-      </article>
-
-      <!-- ═══ CARD 2 — Send chat responses to an editable page ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <div class="c2-page card-surface">
-            <span class="ln" style="width:44%;height:5px;background:#d0d0d0;"></span>
-            <div class="c2-drop">
-              <span style="width:100%;"></span>
-              <span></span>
-            </div>
-            <span class="ln" style="width:88%;"></span>
-            <span class="ln" style="width:70%;"></span>
-            <div class="c2-img">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9ab0" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-6 6"/></svg>
-            </div>
-          </div>
-        </div>
-        <h3 class="wn-title">Send Chat Responses to an Editable Page</h3>
-        <p class="wn-desc">Collect Copilot's answers onto a page and drag in images to save important information.</p>
-        <button class="wn-try">Try it</button>
-      </article>
-
-      <!-- ═══ CARD 3 — Draft decks, docs, spreadsheets, infographics ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <div class="c3-wrap">
-            <div class="c3-gen">
-              <span style="width:18px;height:18px;border-radius:4px;background:#2b579a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex:0 0 18px;">W</span>
-              <span style="display:flex;flex-direction:column;gap:4px;">
-                <span class="lbl">Still working on it…</span>
-                <span class="c3-shimmer"></span>
-              </span>
-            </div>
-            <div class="c3-doc card-surface">
-              <div class="bar"><b>DOCUMENT</b></div>
-              <span class="ln" style="width:62%;height:5px;background:#c9c9c9;margin-bottom:7px;"></span>
-              <span class="ln" style="width:100%;"></span>
-              <span class="ln" style="width:92%;"></span>
-              <span class="ln" style="width:78%;"></span>
-              <span class="ln" style="width:96%;"></span>
-              <span class="ln" style="width:56%;margin-bottom:0;"></span>
-            </div>
-          </div>
-        </div>
-        <h3 class="wn-title">Draft decks, docs, spreadsheets, and infographics</h3>
-        <p class="wn-desc">Turn notebook material into polished deliverables using specialized agents. Match your organization's templates.</p>
-        <button class="wn-try">Try it</button>
-      </article>
-
-      <!-- ═══ CARD 4 — Create a shared workspace ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <div class="c4-dlg card-surface">
-            <div class="c4-ttl">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
-              Product Feedback Notebook
-            </div>
-            <div class="c4-row">
-              <div class="c4-input">
-                <span class="c4-typed">Jordan Reye</span><span class="c4-caret"></span>
-              </div>
-              <span class="c4-invite">Invite</span>
-            </div>
-            <div class="c4-auto">
-              <span class="c4-av">JR</span>
-              <span>
-                <span class="c4-nm">Jordan Reyes</span>
-                <span class="c4-em">jordan.reyes@northwind.example</span>
-              </span>
-            </div>
-            <div class="c4-note">
-              <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.2" style="flex:0 0 7px;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.6"/></svg>
-              <span>All notebook content and links are shared. Chats and audio overviews stay private.</span>
-            </div>
-          </div>
-        </div>
-        <h3 class="wn-title">Create a Shared Workspace</h3>
-        <p class="wn-desc">Share a notebook with your team to co-create in real time, while each person's own chats stay private.</p>
-        <button class="wn-try">Try it</button>
-      </article>
-
-      <!-- ═══ CARD 5 — Connectors  ★ NEW ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <div class="c5-fly card-surface">
-            <div class="c5-search">
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.6" style="margin-right:4px;"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
-              Search sources
-            </div>
-            <div class="c5-row">
-              <span class="c5-ico" style="background:#0f6cbd;">W</span>
-              <span class="c5-lb">Web</span><span class="c5-tg on"></span>
-            </div>
-            <div class="c5-row">
-              <span class="c5-ico" style="background:#d24726;">M</span>
-              <span class="c5-lb">Microsoft 365</span><span class="c5-tg on"></span>
-            </div>
-            <div class="c5-row">
-              <span class="c5-ico" style="background:#6b6bb0;">A</span>
-              <span class="c5-lb">Agents</span><span class="c5-tg on"></span>
-            </div>
-            <div class="c5-div"></div>
-            <div class="c5-row c5-conn">
-              <span class="c5-ico" style="background:#2684ff;">C</span>
-              <span class="c5-lb">Confluence</span><span class="c5-tg on"></span>
-            </div>
-            <div class="c5-row c5-conn">
-              <span class="c5-ico" style="background:#3b3b58;">P</span>
-              <span class="c5-lb">PitchBook</span><span class="c5-tg on"></span>
-            </div>
-            <div class="c5-row c5-conn">
-              <span class="c5-ico" style="background:#c8102e;font-size:5px;">S&amp;P</span>
-              <span class="c5-lb">S&amp;P Global</span><span class="c5-tg c5-flip"></span>
-            </div>
-          </div>
-        </div>
-        <h3 class="wn-title">Pull from connectors like Confluence, PitchBook, S&amp;P Global, etc <span class="wn-pill">New</span></h3>
-        <p class="wn-desc">Pull market data, info from research databases, and internal company documentation.</p>
-        <button class="wn-try">Try it</button>
-        <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
-      </article>
-
-      <!-- ═══ CARD 6 — In-line suggestions  ★ NEW ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <div class="c6-page card-surface">
-            <span class="ln" style="width:48%;height:5px;background:#d0d0d0;"></span>
-            <span class="ln" style="width:94%;"></span>
-            <span class="ln c6-target" style="width:88%;"></span>
-            <span class="ln" style="width:72%;"></span>
-            <div class="c6-sug">
-              <div class="hd">Suggested edit</div>
-              <span class="ln" style="width:100%;"></span>
-              <span class="ln" style="width:74%;"></span>
-              <span class="c6-apply">Apply</span>
-            </div>
-          </div>
-        </div>
-        <h3 class="wn-title">Get professional, in-line suggestions <span class="wn-pill">New</span></h3>
-        <p class="wn-desc">Copilot reviews a page for clarity and quality, then offers edits you apply in one click.</p>
-        <button class="wn-try">Try it</button>
-        <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
-      </article>
-
-      <!-- ═══ CARD 7 — Deep citations  ★ NEW ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <div class="c7-wrap">
-            <div class="c7-ans card-surface">
-              <span class="ln" style="width:52%;height:5px;background:#d0d0d0;"></span>
-              <span class="ln" style="width:96%;"></span>
-              <span class="ln" style="width:88%;"></span>
-              <span class="ln" style="width:60%;display:inline-block;vertical-align:middle;"></span>
-              <span class="c7-chip" style="margin-left:5px;">1</span>
-            </div>
-            <div class="c7-doc card-surface">
-              <div class="hd">Source</div>
-              <span class="ln" style="width:90%;"></span>
-              <span class="ln" style="width:76%;"></span>
-              <div class="c7-hl"></div>
-              <span class="ln" style="width:82%;"></span>
-              <span class="ln" style="width:64%;"></span>
-              <span class="ln" style="width:88%;"></span>
-            </div>
-          </div>
-        </div>
-        <h3 class="wn-title">Verify Sources Faster <span class="wn-pill">New</span></h3>
-        <p class="wn-desc">Get citations straight to the specific passage in a referenced file, so you can quickly verify copilot's output.</p>
-        <button class="wn-try">Try it</button>
-        <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
-      </article>
-
-      <!-- ═══ CARD 8 — Best fit model  ★ NEW ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <div class="c8-wrap card-surface">
-            <div class="c8-ans">
-              <span class="ln c8-restream" style="height:5px;background:#d0d0d0;"></span>
-              <span class="ln c8-restream"></span>
-              <span class="ln c8-restream"></span>
-              <span class="ln c8-restream"></span>
-              <span class="ln c8-restream"></span>
-            </div>
-            <div class="c8-bar">
-              <span class="c8-btn">
-                <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 11a8 8 0 1 0-.5 4M20 5v6h-6"/></svg>
-                Try again
-              </span>
-              <span class="c8-btn act">Switch model</span>
-            </div>
-            <div class="c8-menu">
-              <div class="c8-opt"><span class="c8-dot"></span>Auto</div>
-              <div class="c8-opt sel"><span class="c8-dot"></span>GPT 5.5 Thinking</div>
-              <div class="c8-opt"><span class="c8-dot"></span>Claude Opus 4.8</div>
-            </div>
-          </div>
-        </div>
-        <h3 class="wn-title">Use the Best Fit Model <span class="wn-pill">New</span></h3>
-        <p class="wn-desc">Choose the model that best fits the task with OpenAI GPT 5.5 Thinking.</p>
-        <button class="wn-try">Try it</button>
-        <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
-      </article>
-
-      <!-- ═══ CARD 9 — Mind map ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <svg class="c9-svg" viewBox="0 0 220 150" fill="none">
-            <path class="c9-edge c9-e1" d="M92 75 C 112 75, 118 46, 138 46"/>
-            <path class="c9-edge c9-e2" d="M92 75 C 114 75, 118 75, 140 75"/>
-            <path class="c9-edge c9-e3" d="M92 75 C 112 75, 118 104, 138 104"/>
-            <path class="c9-subedge" d="M158 46 C 172 46, 174 30, 188 30"/>
-            <path class="c9-subedge" d="M158 46 C 172 46, 174 62, 188 62"/>
-
-            <g class="c9-node c9-n0">
-              <rect x="34" y="62" width="58" height="26" rx="7" fill="#242424"/>
-              <rect x="42" y="71" width="30" height="3.5" rx="1.75" fill="#fff" opacity=".85"/>
-              <rect x="42" y="78" width="20" height="3" rx="1.5" fill="#fff" opacity=".45"/>
-            </g>
-
-            <g class="c9-node c9-n1">
-              <rect x="138" y="36" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
-              <rect x="145" y="44" width="24" height="3" rx="1.5" fill="#c9c9c9"/>
-            </g>
-            <g class="c9-node c9-n2">
-              <rect x="140" y="65" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
-              <rect x="147" y="73" width="20" height="3" rx="1.5" fill="#c9c9c9"/>
-            </g>
-            <g class="c9-node c9-n3">
-              <rect x="138" y="94" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
-              <rect x="145" y="102" width="26" height="3" rx="1.5" fill="#c9c9c9"/>
-            </g>
-
-            <circle class="c9-ring" cx="158" cy="46" r="14" stroke="#242424" stroke-width="1" fill="none"/>
-
-            <g class="c9-sub c9-s1">
-              <circle cx="194" cy="30" r="6" fill="#fff" stroke="#d4d4d4"/>
-              <circle cx="194" cy="30" r="2" fill="#8a8a8a"/>
-            </g>
-            <g class="c9-sub c9-s2">
-              <circle cx="194" cy="62" r="6" fill="#fff" stroke="#d4d4d4"/>
-              <circle cx="194" cy="62" r="2" fill="#8a8a8a"/>
-            </g>
-          </svg>
-        </div>
-        <h3 class="wn-title">Generate an interactive mind map</h3>
-        <p class="wn-desc">Map themes across a notebook, visualize relationships, spot gaps, and click into any node to go deeper.</p>
-        <button class="wn-try">Try it</button>
-      </article>
-
-      <!-- ═══ CARD 10 — Audio overview ═══ -->
-      <article class="wn-card">
-        <div class="mock">
-          <div class="c10-dlg card-surface">
-            <div class="c10-ttl">Customize</div>
-            <div class="c10-grid">
-              <div>
-                <div class="c10-lb">Language</div>
-                <div class="c10-sel">English (en)
-                  <svg width="6" height="6" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+              <div class="c1-list">
+                <div class="c1-group">
+                  <div class="c1-row"><span class="c1-ico" style="background:#2b579a;"></span><span class="c1-meta"><b style="width:76%;"></b><i style="width:44%;"></i></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#217346;"></span><span class="c1-meta"><b style="width:58%;"></b><i style="width:38%;"></i></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#d24726;"></span><span class="c1-meta"><b style="width:68%;"></b><i style="width:34%;"></i></span></div>
+                </div>
+                <div class="c1-group">
+                  <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:66%;"></b><i style="width:40%;"></i></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:80%;"></b><i style="width:32%;"></i></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:54%;"></b><i style="width:46%;"></i></span></div>
+                </div>
+                <div class="c1-group">
+                  <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:72%;"></b><i style="width:36%;"></i></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:50%;"></b><i style="width:44%;"></i></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:64%;"></b><i style="width:30%;"></i></span></div>
                 </div>
               </div>
-              <div>
-                <div class="c10-lb">Voice</div>
-                <div class="c10-sel">Ava / Steffan
-                  <svg width="6" height="6" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
-                </div>
-              </div>
-              <div>
-                <div class="c10-lb">Format</div>
-                <div class="c10-chips">
-                  <span class="c10-chip">Narration</span>
-                  <span class="c10-chip pick c10-p1">Dialog</span>
-                </div>
-              </div>
-              <div>
-                <div class="c10-lb">Style</div>
-                <div class="c10-chips">
-                  <span class="c10-chip">Professional</span>
-                  <span class="c10-chip pick c10-p2">Casual</span>
-                </div>
-              </div>
-              <div style="grid-column:1 / -1;">
-                <div class="c10-lb">Duration</div>
-                <div class="c10-chips">
-                  <span class="c10-chip">Shorter</span>
-                  <span class="c10-chip pick c10-p3">Medium</span>
-                  <span class="c10-chip">Longer</span>
-                </div>
-              </div>
-            </div>
-            <div class="c10-note">Any additional customizations (optional)</div>
-            <div class="c10-foot">
-              <span class="c10-eq"><i></i><i></i><i></i><i></i><i></i></span>
-              <span class="c10-gen">Generate audio</span>
+              <svg class="cursor c1-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
             </div>
           </div>
+          <h3 class="wn-title">Pull in OneDrive files, Teams Meeting Transcripts, and Emails</h3>
+          <p class="wn-desc">Prep meeting agendas, get feedback on a draft, compare data across reports, get a cross-source to-do list, and more.</p>
+          <button class="wn-try">Try it</button>
         </div>
-        <h3 class="wn-title">Create a Customized Audio Overview</h3>
-        <p class="wn-desc">Turn your notebook into a podcast-style rundown to listen while driving or walking.</p>
-        <button class="wn-try">Try it</button>
+      </article>
+
+      <!-- ═══ CARD 2 — chat → page drag ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame">
+              <!-- left: the page -->
+              <div class="pane pane-doc">
+                <div class="pane-hd">Page</div>
+                <span class="ln" style="width:52%;height:5px;background:#cfcfcf;"></span>
+                <span class="ln" style="width:88%;"></span>
+                <span class="ln" style="width:64%;"></span>
+                <div class="c2-landed">
+                  <span class="ln" style="width:92%;"></span>
+                  <span class="ln" style="width:70%;"></span>
+                </div>
+              </div>
+              <!-- right: the chat rail -->
+              <div class="pane pane-chat">
+                <div class="pane-hd">Chat</div>
+                <div class="c2-msg">
+                  <span class="ln" style="width:90%;"></span>
+                  <span class="ln c2-sel" style="width:100%;"></span>
+                  <span class="ln c2-sel" style="width:82%;"></span>
+                  <span class="ln" style="width:60%;"></span>
+                </div>
+              </div>
+              <!-- the dragged selection -->
+              <div class="c2-ghost">
+                <span class="ln"></span>
+                <span class="ln"></span>
+              </div>
+              <svg class="cursor c2-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+            </div>
+          </div>
+          <h3 class="wn-title">Send Chat Responses to an Editable Page</h3>
+          <p class="wn-desc">Collect Copilot's answers onto a page and drag in images to save important information.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 3 — prompt → generating → templated doc ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame col">
+              <div class="c3-stage">
+                <div class="c3-gen">
+                  <span style="width:14px;height:14px;border-radius:3px;background:#2b579a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;flex:0 0 14px;">W</span>
+                  <span style="display:flex;flex-direction:column;gap:4px;">
+                    <span class="lbl">Still working on it…</span>
+                    <span class="c3-shimmer"></span>
+                  </span>
+                </div>
+                <div class="c3-doc">
+                  <div class="c3-band"><i></i><b></b></div>
+                  <div class="c3-body">
+                    <span class="ln" style="width:72%;height:5px;background:#c4c4c4;"></span>
+                    <span class="ln" style="width:100%;"></span>
+                    <span class="ln" style="width:88%;"></span>
+                    <div class="c3-cols"><span></span><span></span></div>
+                    <span class="ln" style="width:94%;"></span>
+                    <span class="ln" style="width:60%;margin-bottom:0;"></span>
+                  </div>
+                  <div class="c3-foot"><span></span></div>
+                </div>
+              </div>
+              <div class="c3-composer">
+                <span class="c3-prompt">Draft a customer feedback summary&hellip;</span>
+                <span class="c3-send">
+                  <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+          <h3 class="wn-title">Draft decks, docs, spreadsheets, and infographics</h3>
+          <p class="wn-desc">Turn notebook material into polished deliverables using specialized agents. Match your organization's templates.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 4 — Share popup ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="c4-dlg card-surface">
+              <div class="c4-ttl">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
+                Product Feedback Notebook
+              </div>
+              <div class="c4-row">
+                <div class="c4-input"><span class="c4-typed">Jordan Reye</span><span class="c4-caret"></span></div>
+                <span class="c4-invite">Invite</span>
+              </div>
+              <div class="c4-auto">
+                <span class="c4-av">JR</span>
+                <span>
+                  <span class="c4-nm">Jordan Reyes</span>
+                  <span class="c4-em">jordan.reyes@northwind.example</span>
+                </span>
+              </div>
+              <div class="c4-note">
+                <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.2" style="flex:0 0 7px;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.6"/></svg>
+                <span>All notebook content and links are shared. Chats and audio overviews stay private.</span>
+              </div>
+            </div>
+          </div>
+          <h3 class="wn-title">Create a Shared Workspace</h3>
+          <p class="wn-desc">Share a notebook with your team to co-create in real time, while each person's own chats stay private.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 5 — connectors  ★ NEW ═══ -->
+      <article class="wn-card is-new" data-new="1">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame col">
+              <div class="c5-canvas">
+                <span class="ln" style="width:44%;height:5px;background:#dcdcdc;"></span>
+                <span class="ln" style="width:84%;background:#ededed;"></span>
+                <span class="ln" style="width:66%;background:#ededed;"></span>
+              </div>
+              <div class="c5-composer">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#b5b5b5" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="c5-chip">Sources</span>
+                <span class="c5-plc">Message Copilot</span>
+              </div>
+              <div class="c5-fly">
+                <div class="c5-row"><span class="c5-ico" style="background:#0f6cbd;">W</span><span class="c5-lb">Web</span><span class="c5-tg on"></span></div>
+                <div class="c5-row"><span class="c5-ico" style="background:#d24726;">M</span><span class="c5-lb">Microsoft 365</span><span class="c5-tg on"></span></div>
+                <div class="c5-row"><span class="c5-ico" style="background:#6b6bb0;">A</span><span class="c5-lb">Agents</span><span class="c5-tg on"></span></div>
+                <div class="c5-div"></div>
+                <div class="c5-row c5-conn"><span class="c5-ico" style="background:#2684ff;">C</span><span class="c5-lb">Confluence</span><span class="c5-tg on"></span></div>
+                <div class="c5-row c5-conn"><span class="c5-ico" style="background:#3b3b58;">P</span><span class="c5-lb">PitchBook</span><span class="c5-tg on"></span></div>
+                <div class="c5-row c5-conn"><span class="c5-ico" style="background:#c8102e;font-size:4px;">S&amp;P</span><span class="c5-lb">S&amp;P Global</span><span class="c5-tg c5-flip"></span></div>
+              </div>
+            </div>
+          </div>
+          <span class="wn-badge">New</span>
+          <h3 class="wn-title">Pull from connectors like Confluence, PitchBook, S&amp;P Global, etc</h3>
+          <p class="wn-desc">Pull market data, info from research databases, and internal company documentation.</p>
+          <button class="wn-try">Try it</button>
+          <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 6 — suggested edits rail  ★ NEW ═══ -->
+      <article class="wn-card is-new" data-new="1">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame">
+              <div class="pane pane-doc">
+                <div class="pane-hd">Page</div>
+                <span class="ln" style="width:48%;height:5px;background:#cfcfcf;"></span>
+                <span class="ln" style="width:94%;"></span>
+                <span class="ln c6-target" style="width:88%;"></span>
+                <span class="ln" style="width:72%;"></span>
+                <span class="ln" style="width:84%;"></span>
+              </div>
+              <div class="pane pane-rail">
+                <div class="pane-hd">Suggested edits</div>
+                <div class="c6-sug">
+                  <span class="ln" style="width:100%;"></span>
+                  <span class="ln" style="width:76%;"></span>
+                  <span class="c6-apply">Apply</span>
+                </div>
+              </div>
+              <svg class="cursor c6-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+            </div>
+          </div>
+          <span class="wn-badge">New</span>
+          <h3 class="wn-title">Get professional, in-line suggestions</h3>
+          <p class="wn-desc">Copilot reviews a page for clarity and quality, then offers edits you apply in one click.</p>
+          <button class="wn-try">Try it</button>
+          <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 7 — deep citations  ★ NEW ═══ -->
+      <article class="wn-card is-new" data-new="1">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame">
+              <div class="pane pane-doc">
+                <div class="c7-src">
+                  <div class="pane-hd">Customer Interview 01</div>
+                  <span class="ln" style="width:92%;"></span>
+                  <span class="ln" style="width:78%;"></span>
+                  <div class="c7-hl"></div>
+                  <span class="ln" style="width:84%;"></span>
+                  <span class="ln" style="width:66%;"></span>
+                  <span class="ln" style="width:88%;"></span>
+                </div>
+              </div>
+              <div class="pane pane-chat">
+                <div class="pane-hd">Chat</div>
+                <span class="ln" style="width:94%;"></span>
+                <span class="ln" style="width:80%;"></span>
+                <span class="ln" style="width:56%;display:inline-block;vertical-align:middle;"></span>
+                <span class="c7-chip" style="margin-left:4px;">1</span>
+              </div>
+              <svg class="cursor c7-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+            </div>
+          </div>
+          <span class="wn-badge">New</span>
+          <h3 class="wn-title">Verify Sources Faster</h3>
+          <p class="wn-desc">Get citations straight to the specific passage in a referenced file, so you can quickly verify copilot's output.</p>
+          <button class="wn-try">Try it</button>
+          <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 8 — best fit model  ★ NEW ═══ -->
+      <article class="wn-card is-new" data-new="1">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="c8-rail">
+              <div class="c8-hd">
+                <span>Chat</span>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="c8-body">
+                <span class="ln c8-restream" style="height:5px;background:#cfcfcf;"></span>
+                <span class="ln c8-restream"></span>
+                <span class="ln c8-restream"></span>
+                <span class="ln c8-restream"></span>
+                <div class="c8-bar">
+                  <span class="c8-btn">
+                    <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 11a8 8 0 1 0-.5 4M20 5v6h-6"/></svg>
+                    Try again
+                  </span>
+                  <span class="c8-btn act">Switch model</span>
+                </div>
+                <div class="c8-menu">
+                  <div class="c8-opt"><span class="c8-dot"></span>Auto</div>
+                  <div class="c8-opt sel"><span class="c8-dot"></span>GPT 5.5 Thinking</div>
+                  <div class="c8-opt"><span class="c8-dot"></span>Claude Opus 4.8</div>
+                </div>
+              </div>
+              <div class="c8-cmp">Message Copilot</div>
+            </div>
+          </div>
+          <span class="wn-badge">New</span>
+          <h3 class="wn-title">Use the Best Fit Model</h3>
+          <p class="wn-desc">Choose the model that best fits the task with OpenAI GPT 5.5 Thinking.</p>
+          <button class="wn-try">Try it</button>
+          <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 9 — mind map ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <svg class="c9-svg" viewBox="0 0 220 150" fill="none">
+              <path class="c9-edge c9-e1" d="M92 75 C 112 75, 118 46, 138 46"/>
+              <path class="c9-edge c9-e2" d="M92 75 C 114 75, 118 75, 140 75"/>
+              <path class="c9-edge c9-e3" d="M92 75 C 112 75, 118 104, 138 104"/>
+              <path class="c9-subedge" d="M158 46 C 172 46, 174 30, 188 30"/>
+              <path class="c9-subedge" d="M158 46 C 172 46, 174 62, 188 62"/>
+              <g class="c9-node c9-n0">
+                <rect x="34" y="62" width="58" height="26" rx="7" fill="#242424"/>
+                <rect x="42" y="71" width="30" height="3.5" rx="1.75" fill="#fff" opacity=".85"/>
+                <rect x="42" y="78" width="20" height="3" rx="1.5" fill="#fff" opacity=".45"/>
+              </g>
+              <g class="c9-node c9-n1">
+                <rect x="138" y="36" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
+                <rect x="145" y="44" width="24" height="3" rx="1.5" fill="#c9c9c9"/>
+              </g>
+              <g class="c9-node c9-n2">
+                <rect x="140" y="65" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
+                <rect x="147" y="73" width="20" height="3" rx="1.5" fill="#c9c9c9"/>
+              </g>
+              <g class="c9-node c9-n3">
+                <rect x="138" y="94" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
+                <rect x="145" y="102" width="26" height="3" rx="1.5" fill="#c9c9c9"/>
+              </g>
+              <circle class="c9-ring" cx="158" cy="46" r="14" stroke="#242424" stroke-width="1" fill="none"/>
+              <g class="c9-sub c9-s1">
+                <circle cx="194" cy="30" r="6" fill="#fff" stroke="#d4d4d4"/>
+                <circle cx="194" cy="30" r="2" fill="#8a8a8a"/>
+              </g>
+              <g class="c9-sub c9-s2">
+                <circle cx="194" cy="62" r="6" fill="#fff" stroke="#d4d4d4"/>
+                <circle cx="194" cy="62" r="2" fill="#8a8a8a"/>
+              </g>
+            </svg>
+          </div>
+          <h3 class="wn-title">Generate an interactive mind map</h3>
+          <p class="wn-desc">Map themes across a notebook, visualize relationships, spot gaps, and click into any node to go deeper.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 10 — audio overview ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="c10-dlg card-surface">
+              <div class="c10-ttl">Customize</div>
+              <div class="c10-grid">
+                <div>
+                  <div class="c10-lb">Language</div>
+                  <div class="c10-sel">English (en)
+                    <svg width="6" height="6" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                  </div>
+                </div>
+                <div>
+                  <div class="c10-lb">Voice</div>
+                  <div class="c10-sel">Ava / Steffan
+                    <svg width="6" height="6" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                  </div>
+                </div>
+                <div>
+                  <div class="c10-lb">Format</div>
+                  <div class="c10-chips">
+                    <span class="c10-chip">Narration</span>
+                    <span class="c10-chip pick c10-p1">Dialog</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="c10-lb">Style</div>
+                  <div class="c10-chips">
+                    <span class="c10-chip">Professional</span>
+                    <span class="c10-chip pick c10-p2">Casual</span>
+                  </div>
+                </div>
+                <div style="grid-column:1 / -1;">
+                  <div class="c10-lb">Duration</div>
+                  <div class="c10-chips">
+                    <span class="c10-chip">Shorter</span>
+                    <span class="c10-chip pick c10-p3">Medium</span>
+                    <span class="c10-chip">Longer</span>
+                  </div>
+                </div>
+              </div>
+              <div class="c10-note">Any additional customizations (optional)</div>
+              <div class="c10-foot">
+                <span class="c10-eq"><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="c10-gen">Generate audio</span>
+              </div>
+            </div>
+          </div>
+          <h3 class="wn-title">Create a Customized Audio Overview</h3>
+          <p class="wn-desc">Turn your notebook into a podcast-style rundown to listen while driving or walking.</p>
+          <button class="wn-try">Try it</button>
+        </div>
       </article>
 
     </div>
@@ -806,37 +919,64 @@
 
   const dot = $('wn-dot'), panel = $('wn-panel'), scrim = $('wn-scrim'), body = $('wn-body');
   const mega = $('wn-mega'), closeBtn = $('wn-close');
+  const cards = Array.from(body.querySelectorAll('.wn-card'));
 
-  let seen = false;
-  try { seen = localStorage.getItem(KEY) === '1'; } catch (e) {}
-  if (seen && dot) dot.style.display = 'none';
+  /* ── Two audiences, one deck of cards ──
+     Returning user: they've seen the older features, so June's "New" ones lead.
+     New user: everything is new to them, so the New-tagged ones sit at the bottom. */
+  const btnReturning = $('wn-mode-returning'), btnNew = $('wn-mode-new');
+  const isNew = (c) => c.dataset.new === '1';
+  let mode = new URLSearchParams(location.search).get('user') === 'new' ? 'new' : 'returning';
 
-  // Reveal any card at least ~a third of the way into the panel's viewport.
-  // The IntersectionObserver below does this too, but this runs synchronously
-  // so a card can never be left stranded at opacity:0 if the observer is slow
-  // to deliver its first batch.
-  const revealVisible = () => {
+  const applyMode = () => {
+    const ordered = mode === 'returning'
+      ? cards.filter(isNew).concat(cards.filter((c) => !isNew(c)))
+      : cards.filter((c) => !isNew(c)).concat(cards.filter(isNew));
+    ordered.forEach((c) => body.appendChild(c));   // appendChild moves, it doesn't clone
+    body.scrollTop = 0;
+    btnReturning.classList.toggle('on', mode === 'returning');
+    btnNew.classList.toggle('on', mode === 'new');
+    revealVisible();
+  };
+
+  const setMode = (next) => {
+    mode = next;
+    const url = new URL(location.href);
+    url.searchParams.set('user', next);
+    history.replaceState(null, '', url);
+    applyMode();
+  };
+
+  /* ── Reveal cards as they scroll into the panel ──
+     The IntersectionObserver does the work; this rect check runs synchronously
+     alongside it so a card can never be stranded at opacity:0 if the observer
+     is slow to deliver its first batch. */
+  function revealVisible() {
     const rootRect = body.getBoundingClientRect();
     body.querySelectorAll('.wn-card:not(.in-view)').forEach((card) => {
       const r = card.getBoundingClientRect();
       const shown = Math.min(r.bottom, rootRect.bottom) - Math.max(r.top, rootRect.top);
       if (r.height && shown / r.height >= 0.35) card.classList.add('in-view');
     });
-  };
+  }
 
   let started = false;
   const startObserve = () => {
-    if (started || !body) return;
+    if (started) return;
     started = true;
     if ('IntersectionObserver' in window) {
       const io = new IntersectionObserver((entries) => {
         entries.forEach((en) => { if (en.isIntersecting) en.target.classList.add('in-view'); });
       }, { root: body, threshold: 0.35 });
-      body.querySelectorAll('.wn-card').forEach((c) => io.observe(c));
+      cards.forEach((c) => io.observe(c));
     }
     body.addEventListener('scroll', revealVisible, { passive: true });
     revealVisible();
   };
+
+  let seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  if (seen && dot) dot.style.display = 'none';
 
   const open = () => {
     panel.style.transform = 'translateX(0)';
@@ -853,13 +993,16 @@
     if (mega) mega.focus();
   };
 
-  if (mega) mega.addEventListener('click', open);
-  if (closeBtn) closeBtn.addEventListener('click', close);
-  if (scrim) scrim.addEventListener('click', close);
+  mega.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  scrim.addEventListener('click', close);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
+  btnReturning.addEventListener('click', () => setMode('returning'));
+  btnNew.addEventListener('click', () => setMode('new'));
+
   // replay a card's animation on hover
-  body.querySelectorAll('.wn-card').forEach((card) => {
+  cards.forEach((card) => {
     card.addEventListener('mouseenter', () => {
       if (!card.classList.contains('in-view')) return;
       card.classList.remove('in-view');
@@ -872,6 +1015,8 @@
   panel.querySelectorAll('.wn-try').forEach((b) => {
     b.addEventListener('click', (e) => e.preventDefault());
   });
+
+  applyMode();
 })();
 </script>
 </body>
