@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copilot Notebooks — What's new</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{font-family:"Segoe UI Variable Display","Segoe UI Variable","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;color:#242424;background:#fff;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  a{color:#0f6cbd;text-decoration:none;} a:hover{text-decoration:underline;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ══════════ PANEL CARD SHELL ══════════ */
+  .wn-card{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;}
+  .wn-card.in-view{opacity:1;transform:none;}
+
+  .mock{height:150px;border-radius:8px;background:#f7f7f7;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;}
+  .wn-title{font-size:16px;font-weight:700;line-height:1.35;margin:16px 0 4px;}
+  .wn-pill{display:inline-block;vertical-align:2px;margin-left:3px;font-size:10px;font-weight:600;color:#616161;background:#f0f0f0;border-radius:5px;padding:2px 7px;letter-spacing:.01em;white-space:nowrap;}
+  .wn-desc{font-size:13px;color:#616161;line-height:1.55;margin:0;}
+  .wn-try{margin-top:14px;background:#242424;color:#fff;border:none;border-radius:6px;height:32px;padding:0 16px;font-size:13px;font-weight:600;}
+  .wn-try:hover{background:#000;}
+  .wn-more{display:block;margin-top:10px;font-size:11px;color:#8a8a8a;line-height:1.45;}
+  .wn-more a{color:#0f6cbd;}
+
+  /* shared mock primitives */
+  .card-surface{background:#fff;border-radius:7px;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+  .ln{display:block;height:4px;border-radius:2px;background:#e4e4e4;}
+  .cursor{position:absolute;width:11px;height:14px;pointer-events:none;z-index:5;}
+
+  /* ══════════ CARD 1 — Select References: cursor walks the 3 tabs ══════════ */
+  .c1-dlg{position:relative;width:214px;padding:9px 10px 8px;}
+  .c1-ttl{font-size:9px;font-weight:700;color:#242424;margin-bottom:6px;}
+  .c1-search{display:flex;align-items:center;gap:5px;border-bottom:1px solid #e8e8e8;padding-bottom:5px;margin-bottom:6px;}
+  .c1-tabs{display:flex;gap:3px;margin-bottom:6px;}
+  .c1-tab{font-size:8px;font-weight:600;color:#616161;padding:3px 7px;border-radius:20px;white-space:nowrap;}
+  .c1-list{position:relative;height:52px;}
+  .c1-group{position:absolute;inset:0;opacity:0;}
+  .c1-row{display:flex;align-items:center;gap:6px;padding:3px 2px;}
+  .c1-ico{width:13px;height:13px;border-radius:3px;flex:0 0 13px;}
+  .c1-meta{flex:1;min-width:0;}
+  .c1-meta b{display:block;height:4px;border-radius:2px;background:#dcdcdc;margin-bottom:3px;}
+  .c1-meta i{display:block;height:3px;border-radius:2px;background:#eee;}
+
+  .in-view .c1-tab:nth-child(1){animation:c1t1 2.7s ease both;}
+  .in-view .c1-tab:nth-child(2){animation:c1t2 2.7s ease both;}
+  .in-view .c1-tab:nth-child(3){animation:c1t3 2.7s ease both;}
+  @keyframes c1t1{0%,30%{background:#242424;color:#fff;}36%,100%{background:transparent;color:#616161;}}
+  @keyframes c1t2{0%,30%{background:transparent;color:#616161;}36%,63%{background:#242424;color:#fff;}69%,100%{background:transparent;color:#616161;}}
+  @keyframes c1t3{0%,63%{background:transparent;color:#616161;}69%,100%{background:#242424;color:#fff;}}
+
+  .in-view .c1-group:nth-child(1){animation:c1g1 2.7s ease both;}
+  .in-view .c1-group:nth-child(2){animation:c1g2 2.7s ease both;}
+  .in-view .c1-group:nth-child(3){animation:c1g3 2.7s ease both;}
+  @keyframes c1g1{0%,29%{opacity:1;transform:none;}37%,100%{opacity:0;transform:translateY(-5px);}}
+  @keyframes c1g2{0%,31%{opacity:0;transform:translateY(5px);}39%,62%{opacity:1;transform:none;}70%,100%{opacity:0;transform:translateY(-5px);}}
+  @keyframes c1g3{0%,64%{opacity:0;transform:translateY(5px);}72%,100%{opacity:1;transform:none;}}
+
+  .c1-cursor{top:36px;left:0;transform:translate(20px,0);}
+  .in-view .c1-cursor{animation:c1cur 2.7s cubic-bezier(.5,.05,.2,1) both;}
+  @keyframes c1cur{
+    0%,26%{transform:translate(20px,0);}
+    36%,59%{transform:translate(58px,0);}
+    69%,100%{transform:translate(112px,0);}
+  }
+
+  /* ══════════ CARD 2 — chat answer drops onto page, image tile drags in ══════════ */
+  .c2-page{position:relative;width:196px;height:112px;padding:10px 11px;overflow:hidden;}
+  .c2-page .ln{margin-bottom:6px;}
+  .c2-drop{opacity:0;transform:translate(26px,-40px) scale(.92);border-radius:5px;background:#f3f3f8;border:1px solid #e6e6ef;padding:6px 7px;margin-bottom:7px;}
+  .c2-drop span{display:block;height:4px;border-radius:2px;background:#c9c9d8;margin-bottom:4px;}
+  .c2-drop span:last-child{margin-bottom:0;width:62%;}
+  .in-view .c2-drop{animation:c2drop .75s cubic-bezier(.24,.85,.3,1) .2s forwards;}
+  @keyframes c2drop{to{opacity:1;transform:translate(0,0) scale(1);}}
+  .c2-img{position:absolute;right:11px;bottom:11px;width:52px;height:36px;border-radius:5px;background:linear-gradient(135deg,#e8e8ee,#d6d6e2);display:flex;align-items:center;justify-content:center;opacity:0;transform:translate(52px,10px) rotate(6deg);box-shadow:0 3px 9px rgba(0,0,0,.12);}
+  .in-view .c2-img{animation:c2img .8s cubic-bezier(.24,.85,.3,1) 1.05s forwards;}
+  @keyframes c2img{to{opacity:1;transform:translate(0,0) rotate(0);}}
+
+  /* ══════════ CARD 3 — "Still working on it…" → finished doc ══════════ */
+  .c3-wrap{position:relative;width:190px;height:112px;display:flex;align-items:center;justify-content:center;}
+  .c3-gen{position:absolute;display:flex;align-items:center;gap:8px;}
+  .c3-gen .lbl{font-size:9px;color:#8a8a8a;}
+  .in-view .c3-gen{animation:c3gen 2.1s ease both;}
+  @keyframes c3gen{0%,42%{opacity:1;transform:none;}56%,100%{opacity:0;transform:scale(.94);}}
+  .c3-shimmer{width:58px;height:4px;border-radius:2px;background:linear-gradient(90deg,#e2e2e2 25%,#f6f6f6 50%,#e2e2e2 75%);background-size:200% 100%;}
+  .in-view .c3-shimmer{animation:c3sh 1s linear infinite;}
+  @keyframes c3sh{to{background-position:-200% 0;}}
+  .c3-doc{position:absolute;width:118px;padding:9px 10px;opacity:0;transform:scale(.9) translateY(8px);}
+  .c3-doc .bar{height:16px;border-radius:4px 4px 0 0;background:#2b579a;margin:-9px -10px 8px;display:flex;align-items:center;padding:0 7px;}
+  .c3-doc .bar b{font-size:7px;color:#fff;font-weight:700;letter-spacing:.04em;}
+  .c3-doc .ln{margin-bottom:5px;}
+  .in-view .c3-doc{animation:c3doc .7s cubic-bezier(.22,.9,.3,1) 1.05s forwards;}
+  @keyframes c3doc{to{opacity:1;transform:scale(1) translateY(0);}}
+
+  /* ══════════ CARD 4 — Share popup: typing + org autocomplete ══════════ */
+  .c4-dlg{width:216px;padding:10px 11px;}
+  .c4-ttl{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;margin-bottom:8px;}
+  .c4-row{display:flex;gap:6px;align-items:center;}
+  .c4-input{flex:1;height:20px;border:1px solid #e2e2e2;border-radius:4px;display:flex;align-items:center;padding:0 6px;overflow:hidden;}
+  .c4-typed{font-size:8.5px;color:#242424;white-space:nowrap;overflow:hidden;width:0;}
+  .in-view .c4-typed{animation:c4type 1s steps(11,end) .25s forwards;}
+  @keyframes c4type{to{width:44px;}}
+  .c4-caret{width:1px;height:9px;background:#242424;margin-left:1px;}
+  .in-view .c4-caret{animation:c4blink .7s steps(1) infinite;}
+  @keyframes c4blink{50%{opacity:0;}}
+  .c4-invite{font-size:8px;font-weight:600;color:#8a8a8a;background:#f0f0f0;border-radius:4px;padding:4px 8px;}
+  .in-view .c4-invite{animation:c4inv .4s ease 1.7s forwards;}
+  @keyframes c4inv{to{background:#242424;color:#fff;}}
+  .c4-auto{margin-top:5px;display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;background:#f5f5f5;opacity:0;transform:translateY(-4px);}
+  .in-view .c4-auto{animation:c4auto .45s cubic-bezier(.22,.9,.3,1) 1.35s forwards;}
+  @keyframes c4auto{to{opacity:1;transform:none;}}
+  .c4-av{width:18px;height:18px;border-radius:50%;flex:0 0 18px;background:#6b6bb0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:7.5px;font-weight:700;}
+  .c4-nm{font-size:8.5px;font-weight:600;line-height:1.35;}
+  .c4-em{font-size:7.5px;color:#8a8a8a;line-height:1.35;}
+  .c4-note{display:flex;gap:4px;margin-top:8px;font-size:6.8px;color:#8a8a8a;line-height:1.45;}
+
+  /* ══════════ CARD 5 — Sources flyout + connectors ══════════ */
+  .c5-fly{width:186px;padding:7px 10px;}
+  .c5-search{height:15px;border:1px solid #e6e6e6;border-radius:4px;display:flex;align-items:center;padding:0 6px;font-size:7.5px;color:#a5a5a5;margin-bottom:5px;}
+  .c5-row{display:flex;align-items:center;gap:6px;padding:2px 0;}
+  .c5-ico{width:12px;height:12px;border-radius:3px;flex:0 0 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:6px;font-weight:700;}
+  .c5-lb{flex:1;font-size:8px;color:#333;}
+  .c5-tg{width:18px;height:10px;border-radius:6px;background:#d8d8d8;flex:0 0 18px;position:relative;}
+  .c5-tg::after{content:"";position:absolute;top:1.5px;left:1.5px;width:7px;height:7px;border-radius:50%;background:#fff;transition:transform .2s;}
+  .c5-tg.on{background:#242424;}
+  .c5-tg.on::after{transform:translateX(8px);}
+  .c5-div{height:1px;background:#efefef;margin:4px 0;}
+  .c5-conn{opacity:0;transform:translateY(5px);}
+  .in-view .c5-conn{animation:c5conn .45s cubic-bezier(.22,.9,.3,1) both;}
+  @keyframes c5conn{to{opacity:1;transform:none;}}
+  .in-view .c5-conn:nth-of-type(1){animation-delay:.45s;}
+  .in-view .c5-conn:nth-of-type(2){animation-delay:.58s;}
+  .in-view .c5-conn:nth-of-type(3){animation-delay:.71s;}
+  /* the S&P toggle flips on at the end */
+  .c5-flip{background:#d8d8d8;}
+  .in-view .c5-flip{animation:c5flip .45s cubic-bezier(.3,.8,.3,1) 1.25s forwards;}
+  @keyframes c5flip{to{background:#242424;}}
+  .in-view .c5-flip::after{animation:c5knob .45s cubic-bezier(.3,.8,.3,1) 1.25s forwards;}
+  @keyframes c5knob{to{transform:translateX(8px);}}
+
+  /* ══════════ CARD 6 — inline suggestion → Apply → text tightens ══════════ */
+  .c6-page{position:relative;width:196px;height:114px;padding:11px 12px;overflow:hidden;}
+  .c6-page .ln{margin-bottom:7px;}
+  .c6-target{background:#eceff6;position:relative;}
+  .in-view .c6-target{animation:c6tight .6s cubic-bezier(.3,.8,.3,1) 1.5s forwards;}
+  @keyframes c6tight{to{width:58%;background:#e4e4e4;}}
+  .c6-sug{position:absolute;right:9px;bottom:9px;width:118px;padding:7px 8px;border-radius:6px;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.14);opacity:0;transform:translateY(8px) scale(.96);}
+  .in-view .c6-sug{animation:c6sug .5s cubic-bezier(.22,.9,.3,1) .5s forwards;}
+  @keyframes c6sug{to{opacity:1;transform:none;}}
+  .c6-sug .hd{font-size:7.5px;font-weight:700;color:#242424;margin-bottom:5px;}
+  .c6-sug .ln{height:3px;margin-bottom:4px;}
+  .c6-apply{display:inline-block;margin-top:3px;font-size:7.5px;font-weight:600;color:#fff;background:#242424;border-radius:4px;padding:3px 9px;}
+  .in-view .c6-apply{animation:c6press .4s ease 1.25s;}
+  @keyframes c6press{50%{transform:scale(.9);background:#000;}}
+
+  /* ══════════ CARD 7 — citation chip → doc panel opens on highlighted line ══════════ */
+  .c7-wrap{position:relative;width:206px;height:112px;display:flex;gap:7px;}
+  .c7-ans{flex:1;padding:10px;overflow:hidden;}
+  .c7-ans .ln{margin-bottom:6px;}
+  .c7-chip{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:3px;background:#f0f0f0;font-size:7px;font-weight:700;color:#616161;vertical-align:middle;}
+  .in-view .c7-chip{animation:c7chip .5s ease .55s forwards;}
+  @keyframes c7chip{40%{transform:scale(.82);}100%{background:#242424;color:#fff;transform:scale(1);}}
+  .c7-doc{position:absolute;right:0;top:0;width:92px;height:100%;padding:9px 8px;opacity:0;transform:translateX(28px);}
+  .in-view .c7-doc{animation:c7doc .55s cubic-bezier(.22,.85,.3,1) 1s forwards;}
+  @keyframes c7doc{to{opacity:1;transform:none;}}
+  .c7-doc .hd{font-size:7px;font-weight:700;color:#8a8a8a;margin-bottom:6px;}
+  .c7-doc .ln{margin-bottom:5px;}
+  .c7-hl{height:9px;border-radius:2px;background:#e4e4e4;margin:-2px -3px 5px;padding:0 3px;}
+  .in-view .c7-hl{animation:c7hl .5s ease 1.5s forwards;}
+  @keyframes c7hl{to{background:#ffe8a3;box-shadow:0 0 0 1px #f0d68a;}}
+
+  /* ══════════ CARD 8 — hover toolbar → model menu → answer re-streams ══════════ */
+  .c8-wrap{position:relative;width:198px;height:118px;padding:10px 11px;}
+  .c8-ans .ln{margin-bottom:6px;}
+  .c8-restream{width:0;}
+  .in-view .c8-restream{animation:c8st .55s cubic-bezier(.3,.8,.3,1) both;}
+  @keyframes c8st{from{width:0;}}
+  .in-view .c8-restream:nth-of-type(1){animation-delay:1.5s;width:52%;}
+  .in-view .c8-restream:nth-of-type(2){animation-delay:1.6s;width:100%;}
+  .in-view .c8-restream:nth-of-type(3){animation-delay:1.7s;width:90%;}
+  .in-view .c8-restream:nth-of-type(4){animation-delay:1.8s;width:96%;}
+  .in-view .c8-restream:nth-of-type(5){animation-delay:1.9s;width:68%;}
+  .c8-bar{display:flex;gap:4px;margin-top:8px;opacity:0;transform:translateY(4px);}
+  .in-view .c8-bar{animation:c8bar .4s ease .35s forwards;}
+  @keyframes c8bar{to{opacity:1;transform:none;}}
+  .c8-btn{font-size:7.5px;font-weight:600;color:#424242;background:#f0f0f0;border-radius:4px;padding:3.5px 7px;display:flex;align-items:center;gap:3px;}
+  .c8-btn.act{background:#242424;color:#fff;}
+  .c8-menu{position:absolute;left:52px;bottom:8px;width:104px;padding:4px;border-radius:6px;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.16);opacity:0;transform:translateY(6px) scale(.96);transform-origin:bottom left;}
+  .in-view .c8-menu{animation:c8menu .45s cubic-bezier(.22,.9,.3,1) .8s forwards,c8menuOut .35s ease 1.65s forwards;}
+  @keyframes c8menu{to{opacity:1;transform:none;}}
+  @keyframes c8menuOut{to{opacity:0;transform:translateY(4px) scale(.97);}}
+  .c8-opt{display:flex;align-items:center;gap:5px;font-size:7.5px;color:#333;padding:4px 6px;border-radius:4px;}
+  .c8-opt.sel{background:#f2f2f2;font-weight:600;}
+  .c8-dot{width:5px;height:5px;border-radius:50%;background:#c4c4c4;flex:0 0 5px;}
+  .c8-opt.sel .c8-dot{background:#242424;}
+
+  /* ══════════ CARD 9 — mind map: node expands into sub-nodes ══════════ */
+  .c9-svg{width:100%;height:100%;}
+  .c9-edge{stroke:#d4d4d4;stroke-width:1.2;fill:none;stroke-dasharray:60;stroke-dashoffset:60;}
+  .in-view .c9-edge{animation:c9draw .55s ease forwards;}
+  @keyframes c9draw{to{stroke-dashoffset:0;}}
+  .in-view .c9-e1{animation-delay:.3s;} .in-view .c9-e2{animation-delay:.4s;} .in-view .c9-e3{animation-delay:.5s;}
+  .c9-node{opacity:0;transform:scale(.5);transform-origin:center;transform-box:fill-box;}
+  .in-view .c9-node{animation:c9pop .45s cubic-bezier(.2,.9,.3,1.1) forwards;}
+  @keyframes c9pop{to{opacity:1;transform:scale(1);}}
+  .in-view .c9-n0{animation-delay:.15s;}
+  .in-view .c9-n1{animation-delay:.6s;} .in-view .c9-n2{animation-delay:.7s;} .in-view .c9-n3{animation-delay:.8s;}
+  /* sub-nodes expand off the top branch */
+  .c9-sub{opacity:0;transform:scale(.4);transform-origin:center;transform-box:fill-box;}
+  .in-view .c9-sub{animation:c9pop .5s cubic-bezier(.2,.9,.3,1.1) forwards;}
+  .in-view .c9-s1{animation-delay:1.15s;} .in-view .c9-s2{animation-delay:1.28s;}
+  .c9-subedge{stroke:#e0e0e0;stroke-width:1;fill:none;stroke-dasharray:30;stroke-dashoffset:30;}
+  .in-view .c9-subedge{animation:c9draw .45s ease 1.05s forwards;}
+  .c9-ring{opacity:0;transform-origin:center;transform-box:fill-box;}
+  .in-view .c9-ring{animation:c9ring 1.1s ease 1.2s forwards;}
+  @keyframes c9ring{0%{opacity:.5;transform:scale(1);}100%{opacity:0;transform:scale(2.1);}}
+
+  /* ══════════ CARD 10 — audio Customize popup ══════════ */
+  .c10-dlg{width:208px;padding:6px 9px;}
+  .c10-ttl{font-size:9px;font-weight:700;margin-bottom:4px;}
+  .c10-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 9px;}
+  .c10-lb{font-size:6.5px;color:#8a8a8a;font-weight:600;margin-bottom:1px;letter-spacing:.02em;line-height:1.2;}
+  .c10-sel{height:12px;border:1px solid #e2e2e2;border-radius:3px;display:flex;align-items:center;justify-content:space-between;padding:0 4px;font-size:7px;color:#424242;}
+  .c10-chips{display:flex;gap:3px;}
+  .c10-chip{font-size:6.8px;font-weight:600;color:#424242;border:1px solid #e2e2e2;border-radius:3px;padding:1.5px 5px;background:#fff;line-height:1.25;}
+  .c10-chip.pick{border-color:#c9c9c9;}
+  .in-view .c10-chip.pick{animation:c10pick .45s cubic-bezier(.3,.8,.3,1) both;}
+  @keyframes c10pick{to{background:#242424;border-color:#242424;color:#fff;}}
+  .in-view .c10-p1{animation-delay:.5s;} .in-view .c10-p2{animation-delay:.68s;} .in-view .c10-p3{animation-delay:.86s;}
+  .c10-note{margin-top:4px;height:13px;border:1px solid #e6e6e6;border-radius:4px;background:#fafafa;display:flex;align-items:center;padding:0 5px;font-size:6.5px;color:#b0b0b0;}
+  .c10-foot{display:flex;align-items:center;justify-content:flex-end;margin-top:4px;}
+  .c10-gen{font-size:7.5px;font-weight:600;color:#fff;background:#242424;border-radius:4px;padding:3px 9px;opacity:0;transform:translateY(4px);}
+  .in-view .c10-gen{animation:c10gen .45s cubic-bezier(.22,.9,.3,1) 1.1s forwards;}
+  @keyframes c10gen{to{opacity:1;transform:none;}}
+  .c10-eq{display:flex;align-items:flex-end;gap:2px;height:11px;margin-right:auto;}
+  .c10-eq i{display:block;width:2px;background:#c9c9c9;border-radius:1px;height:3px;}
+  .in-view .c10-eq i{animation:c10eq 1s ease-in-out infinite;}
+  @keyframes c10eq{0%,100%{height:3px;}50%{height:10px;}}
+  .in-view .c10-eq i:nth-child(2){animation-delay:.12s;}
+  .in-view .c10-eq i:nth-child(3){animation-delay:.24s;}
+  .in-view .c10-eq i:nth-child(4){animation-delay:.36s;}
+  .in-view .c10-eq i:nth-child(5){animation-delay:.48s;}
+
+  @media (prefers-reduced-motion:reduce){
+    .wn-card,.wn-card *{animation:none!important;transition:none!important;}
+    .wn-card{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<div style="position:relative;width:100%;height:100vh;overflow:hidden;background:#fff;display:flex;flex-direction:column;">
+
+  <!-- ══ TOP COMMAND BAR ══ -->
+  <header style="display:flex;align-items:center;height:48px;flex:0 0 48px;border-bottom:1px solid #efefef;background:#fff;">
+    <div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex:0 0 48px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3c-.6 4-1.4 4.8-5.4 5.4C10.6 9 11.4 9.8 12 13.8c.6-4 1.4-4.8 5.4-5.4C13.4 7.8 12.6 7 12 3Z" fill="#4b4b8f"/><path d="M17.5 13.5c-.35 2.3-.85 2.8-3.15 3.15 2.3.35 2.8.85 3.15 3.15.35-2.3.85-2.8 3.15-3.15-2.3-.35-2.8-.85-3.15-3.15Z" fill="#6b6bb0"/></svg>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding-left:6px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      <span style="font-size:14px;font-weight:600;">Product Feedback Notebook</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;padding-right:12px;">
+      <span style="font-size:13px;color:#616161;margin-right:6px;">0 members</span>
+      <button style="background:#242424;color:#fff;border:none;border-radius:5px;height:30px;padding:0 16px;font-size:13px;font-weight:600;">Share</button>
+      <button title="Collaborate" style="width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.2"/><path d="M15 19a4 4 0 0 1 6.5-3.1"/></svg>
+      </button>
+      <button style="background:transparent;border:1px solid #e0e0e0;border-radius:6px;height:32px;padding:0 12px;font-size:13px;font-weight:600;color:#242424;display:flex;align-items:center;gap:6px;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        New notebook
+      </button>
+
+      <!-- ★ MEGAPHONE TRIGGER (What's New) -->
+      <button id="wn-mega" title="What's new" aria-haspopup="dialog" style="position:relative;width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l4.5 3.2a.7.7 0 0 0 1.1-.57V7.37a.7.7 0 0 0-1.1-.57L6 10H4a1 1 0 0 0-1 1Z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+        <span id="wn-dot" style="position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%;background:#242424;border:1.5px solid #fff;"></span>
+      </button>
+
+      <button title="More" style="width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#424242"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ BODY ══ -->
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <!-- icon rail -->
+    <nav style="flex:0 0 48px;display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:10px;border-right:1px solid #efefef;background:#fafafa;">
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;background:#ececec;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 11.5a8 8 0 1 0-3.2 6.4L21 19l-1.1-4A8 8 0 0 0 20 11.5Z"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1Z"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h5v16H5zM14 4h5v16h-5z"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l2 6-2 12-2-12 2-6Z"/></svg></div>
+    </nav>
+
+    <!-- section nav -->
+    <aside style="flex:0 0 258px;padding:14px 12px;border-right:1px solid #efefef;background:#fff;overflow-y:auto;">
+      <div style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;background:#f0f0f0;border-left:2px solid #242424;font-size:14px;font-weight:600;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#242424" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Overview
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1Z"/></svg>Create
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>Reference
+      </div>
+
+      <div style="height:1px;background:#efefef;margin:14px 8px;"></div>
+
+      <div style="font-size:12px;color:#8a8a8a;font-weight:600;padding:0 12px 8px;">Created content</div>
+      <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#d24726;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">P</span>Untitled</div>
+      <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#d24726;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">P</span>Untitled</div>
+
+      <div style="height:14px;"></div>
+      <div style="font-size:12px;color:#8a8a8a;font-weight:600;padding:0 12px 8px;">References</div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#5b5fc7;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">T</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Weekly 1:1 with Priya — transcript</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Customer Interview 01 — Transcript</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Customer Interview 02 — Transcript</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Product Brief — Draft</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#217346;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">X</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Q3 Survey Results</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Research Summary — Themes</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Roadmap Planning Notes</span></div>
+      </div>
+    </aside>
+
+    <!-- center canvas -->
+    <main style="flex:1;overflow-y:auto;min-width:0;background:#fff;">
+      <div style="max-width:960px;margin:0 auto;padding:22px 40px 80px;">
+        <div style="font-size:15px;font-weight:600;">Overview</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a8a8a;margin-top:2px;">June 9, 2026
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.8"><path d="M20 11a8 8 0 1 0-.5 4M20 5v6h-6"/></svg>
+        </div>
+        <div style="height:1px;background:#efefef;margin:16px 0 24px;"></div>
+
+        <div style="display:flex;gap:52px;flex-wrap:wrap;">
+          <!-- Summary column -->
+          <section style="flex:1 1 320px;min-width:280px;max-width:420px;">
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:10px;">Summary</div>
+            <h1 style="font-size:26px;line-height:1.2;font-weight:700;margin:0 0 18px;letter-spacing:-.01em;">Customer Feedback Themes and Next Steps</h1>
+            <p style="font-size:15px;line-height:1.7;color:#333;margin:0;">This notebook consolidates customer interviews, survey results, and internal notes into a single view of what people find valuable and where they get stuck. It groups the feedback into recurring themes, highlights the gaps worth acting on, and proposes the next steps the team should take this quarter. <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;vertical-align:middle;">1</span></p>
+            <div style="display:flex;gap:16px;margin-top:20px;color:#8a8a8a;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v3h5a2 2 0 0 1 2 2.4l-1.5 6A2 2 0 0 1 16.5 20H7"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="transform:rotate(180deg);"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v3h5a2 2 0 0 1 2 2.4l-1.5 6A2 2 0 0 1 16.5 20H7"/></svg>
+            </div>
+          </section>
+
+          <!-- Quick Create column -->
+          <section style="flex:1 1 420px;min-width:340px;">
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:12px;">Quick Create</div>
+            <div style="display:flex;gap:14px;margin-bottom:14px;">
+              <div style="flex:1;border:1px solid #ececec;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="width:20px;height:20px;border-radius:4px;background:#d24726;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">P</span><span style="font-size:13px;color:#616161;">Presentation</span></div>
+                <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Quick presentation</div>
+                <div style="font-size:12px;color:#8a8a8a;line-height:1.5;">Select to turn your notebook content into an editable presentation.</div>
+              </div>
+              <div style="flex:1;border:1px solid #ececec;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="width:20px;height:20px;border-radius:4px;background:#2b579a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">W</span><span style="font-size:13px;color:#616161;">Document</span></div>
+                <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Quick document</div>
+                <div style="font-size:12px;color:#8a8a8a;line-height:1.5;">Select to create an editable document using all the content in your notebook.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#fbe9d2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b8791d" stroke-width="1.7"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 0 2 2h1v-4H6a2 2 0 0 0-2 2Zm16 0a2 2 0 0 1-2 2h-1v-4h1a2 2 0 0 1 2 2Z"/></svg></span>Audio overview</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e8;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f8a70" stroke-width="1.7"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9"/></svg></span>Mind map</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#e6e1f5;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.7"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/><path d="M9 12h6M9 16h4"/></svg></span>Study guide</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#f8dfee;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b83e8e" stroke-width="1.7"><path d="M5 20V9M12 20V4M19 20v-7"/></svg></span>Infographic</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#217346" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></span>Spreadsheet</div>
+            </div>
+
+            <div style="height:1px;background:#efefef;margin:30px 0 24px;"></div>
+
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:6px;">Key Insights</div>
+            <h2 style="font-size:23px;line-height:1.25;font-weight:700;margin:0 0 20px;letter-spacing:-.01em;">What Customers Value, and Where They Stall</h2>
+
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 10px;">Setup Is the Biggest Drop-off</h3>
+            <ul style="margin:0 0 22px;padding-left:20px;font-size:14px;line-height:1.7;color:#333;">
+              <li style="margin-bottom:8px;">Most interviewees described the first-run setup as the hardest part of getting started. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+              <li>Once past setup, weekly usage climbs sharply and stays steady across the cohort. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+            </ul>
+
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 10px;">Sharing Drives Repeat Use</h3>
+            <ul style="margin:0 0 22px;padding-left:20px;font-size:14px;line-height:1.7;color:#333;">
+              <li style="margin-bottom:8px;">Teams that shared a workspace returned roughly twice as often as solo users. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+              <li>Privacy of individual chats was raised repeatedly as a precondition for sharing. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+            </ul>
+
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 10px;">Trust Depends on Traceable Sources</h3>
+            <ul style="margin:0 0 20px;padding-left:20px;font-size:14px;line-height:1.7;color:#333;">
+              <li style="margin-bottom:8px;">Users want to jump from an answer straight to the passage it came from before acting on it. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+              <li>Verification speed, not answer length, was the strongest predictor of stated confidence. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- right chat rail -->
+    <aside style="flex:0 0 360px;border-left:1px solid #efefef;background:#fff;display:flex;flex-direction:column;min-width:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 18px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;">Chat <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a8a5a" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="font-size:24px;font-weight:700;color:#242424;letter-spacing:-.01em;">Let's connect the dots</div>
+      </div>
+      <div style="padding:0 16px 18px;">
+        <div style="border:1px solid #e0e0e0;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+          <div style="font-size:14px;color:#9a9a9a;margin-bottom:22px;">Message Copilot</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;gap:12px;color:#616161;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'">Provide a detailed explanation of [topic] in this notebook</div>
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'">Draft an abstract with 5 citations listed from my References</div>
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='#fff'">Describe common themes in my notebook</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ══ SCRIM ══ -->
+  <div id="wn-scrim" style="position:absolute;inset:0;background:rgba(24,24,24,.14);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:40;"></div>
+
+  <!-- ══ WHAT'S NEW PANEL ══ -->
+  <div id="wn-panel" role="dialog" aria-label="What's new" aria-modal="true" style="position:absolute;top:0;right:0;height:100%;width:400px;background:#fff;box-shadow:-10px 0 34px rgba(0,0,0,.13);transform:translateX(100%);transition:transform .25s cubic-bezier(.22,.75,.3,1);z-index:50;display:flex;flex-direction:column;">
+
+    <!-- panel header -->
+    <div style="display:flex;align-items:center;gap:10px;padding:20px 20px 16px;flex:0 0 auto;">
+      <h2 style="font-size:19px;font-weight:700;margin:0;letter-spacing:-.01em;">What's new</h2>
+      <span style="font-size:11px;font-weight:600;color:#616161;background:#f0f0f0;border-radius:5px;padding:3px 8px;">June 2026</span>
+      <div style="flex:1;"></div>
+      <button id="wn-close" title="Close" style="width:32px;height:32px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <!-- panel scroll body -->
+    <div id="wn-body" style="flex:1;overflow-y:auto;padding:8px 20px 32px;display:flex;flex-direction:column;gap:34px;">
+
+      <!-- ═══ CARD 1 — Select References: Files / Meetings / Emails ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c1-dlg card-surface">
+            <div class="c1-ttl">Select References</div>
+            <div class="c1-search">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.4"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+              <span style="font-size:7.5px;color:#b0b0b0;">Search</span>
+            </div>
+            <div class="c1-tabs">
+              <span class="c1-tab">Files</span>
+              <span class="c1-tab">Meetings</span>
+              <span class="c1-tab">Emails</span>
+            </div>
+            <div class="c1-list">
+              <!-- Files -->
+              <div class="c1-group">
+                <div class="c1-row"><span class="c1-ico" style="background:#2b579a;"></span><span class="c1-meta"><b style="width:76%;"></b><i style="width:44%;"></i></span></div>
+                <div class="c1-row"><span class="c1-ico" style="background:#217346;"></span><span class="c1-meta"><b style="width:58%;"></b><i style="width:38%;"></i></span></div>
+                <div class="c1-row"><span class="c1-ico" style="background:#d24726;"></span><span class="c1-meta"><b style="width:68%;"></b><i style="width:34%;"></i></span></div>
+              </div>
+              <!-- Meetings -->
+              <div class="c1-group">
+                <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:66%;"></b><i style="width:40%;"></i></span></div>
+                <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:80%;"></b><i style="width:32%;"></i></span></div>
+                <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;"></span><span class="c1-meta"><b style="width:54%;"></b><i style="width:46%;"></i></span></div>
+              </div>
+              <!-- Emails -->
+              <div class="c1-group">
+                <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:72%;"></b><i style="width:36%;"></i></span></div>
+                <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:50%;"></b><i style="width:44%;"></i></span></div>
+                <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;"></span><span class="c1-meta"><b style="width:64%;"></b><i style="width:30%;"></i></span></div>
+              </div>
+            </div>
+            <!-- mouse cursor -->
+            <svg class="cursor c1-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+          </div>
+        </div>
+        <h3 class="wn-title">Pull in OneDrive files, Teams Meeting Transcripts, and Emails</h3>
+        <p class="wn-desc">Prep meeting agendas, get feedback on a draft, compare data across reports, get a cross-source to-do list, and more.</p>
+        <button class="wn-try">Try it</button>
+      </article>
+
+      <!-- ═══ CARD 2 — Send chat responses to an editable page ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c2-page card-surface">
+            <span class="ln" style="width:44%;height:5px;background:#d0d0d0;"></span>
+            <div class="c2-drop">
+              <span style="width:100%;"></span>
+              <span></span>
+            </div>
+            <span class="ln" style="width:88%;"></span>
+            <span class="ln" style="width:70%;"></span>
+            <div class="c2-img">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9ab0" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-6 6"/></svg>
+            </div>
+          </div>
+        </div>
+        <h3 class="wn-title">Send Chat Responses to an Editable Page</h3>
+        <p class="wn-desc">Collect Copilot's answers onto a page and drag in images to save important information.</p>
+        <button class="wn-try">Try it</button>
+      </article>
+
+      <!-- ═══ CARD 3 — Draft decks, docs, spreadsheets, infographics ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c3-wrap">
+            <div class="c3-gen">
+              <span style="width:18px;height:18px;border-radius:4px;background:#2b579a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex:0 0 18px;">W</span>
+              <span style="display:flex;flex-direction:column;gap:4px;">
+                <span class="lbl">Still working on it…</span>
+                <span class="c3-shimmer"></span>
+              </span>
+            </div>
+            <div class="c3-doc card-surface">
+              <div class="bar"><b>DOCUMENT</b></div>
+              <span class="ln" style="width:62%;height:5px;background:#c9c9c9;margin-bottom:7px;"></span>
+              <span class="ln" style="width:100%;"></span>
+              <span class="ln" style="width:92%;"></span>
+              <span class="ln" style="width:78%;"></span>
+              <span class="ln" style="width:96%;"></span>
+              <span class="ln" style="width:56%;margin-bottom:0;"></span>
+            </div>
+          </div>
+        </div>
+        <h3 class="wn-title">Draft decks, docs, spreadsheets, and infographics</h3>
+        <p class="wn-desc">Turn notebook material into polished deliverables using specialized agents. Match your organization's templates.</p>
+        <button class="wn-try">Try it</button>
+      </article>
+
+      <!-- ═══ CARD 4 — Create a shared workspace ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c4-dlg card-surface">
+            <div class="c4-ttl">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
+              Product Feedback Notebook
+            </div>
+            <div class="c4-row">
+              <div class="c4-input">
+                <span class="c4-typed">Jordan Reye</span><span class="c4-caret"></span>
+              </div>
+              <span class="c4-invite">Invite</span>
+            </div>
+            <div class="c4-auto">
+              <span class="c4-av">JR</span>
+              <span>
+                <span class="c4-nm">Jordan Reyes</span>
+                <span class="c4-em">jordan.reyes@northwind.example</span>
+              </span>
+            </div>
+            <div class="c4-note">
+              <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.2" style="flex:0 0 7px;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.6"/></svg>
+              <span>All notebook content and links are shared. Chats and audio overviews stay private.</span>
+            </div>
+          </div>
+        </div>
+        <h3 class="wn-title">Create a Shared Workspace</h3>
+        <p class="wn-desc">Share a notebook with your team to co-create in real time, while each person's own chats stay private.</p>
+        <button class="wn-try">Try it</button>
+      </article>
+
+      <!-- ═══ CARD 5 — Connectors  ★ NEW ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c5-fly card-surface">
+            <div class="c5-search">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.6" style="margin-right:4px;"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+              Search sources
+            </div>
+            <div class="c5-row">
+              <span class="c5-ico" style="background:#0f6cbd;">W</span>
+              <span class="c5-lb">Web</span><span class="c5-tg on"></span>
+            </div>
+            <div class="c5-row">
+              <span class="c5-ico" style="background:#d24726;">M</span>
+              <span class="c5-lb">Microsoft 365</span><span class="c5-tg on"></span>
+            </div>
+            <div class="c5-row">
+              <span class="c5-ico" style="background:#6b6bb0;">A</span>
+              <span class="c5-lb">Agents</span><span class="c5-tg on"></span>
+            </div>
+            <div class="c5-div"></div>
+            <div class="c5-row c5-conn">
+              <span class="c5-ico" style="background:#2684ff;">C</span>
+              <span class="c5-lb">Confluence</span><span class="c5-tg on"></span>
+            </div>
+            <div class="c5-row c5-conn">
+              <span class="c5-ico" style="background:#3b3b58;">P</span>
+              <span class="c5-lb">PitchBook</span><span class="c5-tg on"></span>
+            </div>
+            <div class="c5-row c5-conn">
+              <span class="c5-ico" style="background:#c8102e;font-size:5px;">S&amp;P</span>
+              <span class="c5-lb">S&amp;P Global</span><span class="c5-tg c5-flip"></span>
+            </div>
+          </div>
+        </div>
+        <h3 class="wn-title">Pull from connectors like Confluence, PitchBook, S&amp;P Global, etc <span class="wn-pill">New</span></h3>
+        <p class="wn-desc">Pull market data, info from research databases, and internal company documentation.</p>
+        <button class="wn-try">Try it</button>
+        <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+      </article>
+
+      <!-- ═══ CARD 6 — In-line suggestions  ★ NEW ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c6-page card-surface">
+            <span class="ln" style="width:48%;height:5px;background:#d0d0d0;"></span>
+            <span class="ln" style="width:94%;"></span>
+            <span class="ln c6-target" style="width:88%;"></span>
+            <span class="ln" style="width:72%;"></span>
+            <div class="c6-sug">
+              <div class="hd">Suggested edit</div>
+              <span class="ln" style="width:100%;"></span>
+              <span class="ln" style="width:74%;"></span>
+              <span class="c6-apply">Apply</span>
+            </div>
+          </div>
+        </div>
+        <h3 class="wn-title">Get professional, in-line suggestions <span class="wn-pill">New</span></h3>
+        <p class="wn-desc">Copilot reviews a page for clarity and quality, then offers edits you apply in one click.</p>
+        <button class="wn-try">Try it</button>
+        <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+      </article>
+
+      <!-- ═══ CARD 7 — Deep citations  ★ NEW ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c7-wrap">
+            <div class="c7-ans card-surface">
+              <span class="ln" style="width:52%;height:5px;background:#d0d0d0;"></span>
+              <span class="ln" style="width:96%;"></span>
+              <span class="ln" style="width:88%;"></span>
+              <span class="ln" style="width:60%;display:inline-block;vertical-align:middle;"></span>
+              <span class="c7-chip" style="margin-left:5px;">1</span>
+            </div>
+            <div class="c7-doc card-surface">
+              <div class="hd">Source</div>
+              <span class="ln" style="width:90%;"></span>
+              <span class="ln" style="width:76%;"></span>
+              <div class="c7-hl"></div>
+              <span class="ln" style="width:82%;"></span>
+              <span class="ln" style="width:64%;"></span>
+              <span class="ln" style="width:88%;"></span>
+            </div>
+          </div>
+        </div>
+        <h3 class="wn-title">Verify Sources Faster <span class="wn-pill">New</span></h3>
+        <p class="wn-desc">Get citations straight to the specific passage in a referenced file, so you can quickly verify copilot's output.</p>
+        <button class="wn-try">Try it</button>
+        <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+      </article>
+
+      <!-- ═══ CARD 8 — Best fit model  ★ NEW ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c8-wrap card-surface">
+            <div class="c8-ans">
+              <span class="ln c8-restream" style="height:5px;background:#d0d0d0;"></span>
+              <span class="ln c8-restream"></span>
+              <span class="ln c8-restream"></span>
+              <span class="ln c8-restream"></span>
+              <span class="ln c8-restream"></span>
+            </div>
+            <div class="c8-bar">
+              <span class="c8-btn">
+                <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 11a8 8 0 1 0-.5 4M20 5v6h-6"/></svg>
+                Try again
+              </span>
+              <span class="c8-btn act">Switch model</span>
+            </div>
+            <div class="c8-menu">
+              <div class="c8-opt"><span class="c8-dot"></span>Auto</div>
+              <div class="c8-opt sel"><span class="c8-dot"></span>GPT 5.5 Thinking</div>
+              <div class="c8-opt"><span class="c8-dot"></span>Claude Opus 4.8</div>
+            </div>
+          </div>
+        </div>
+        <h3 class="wn-title">Use the Best Fit Model <span class="wn-pill">New</span></h3>
+        <p class="wn-desc">Choose the model that best fits the task with OpenAI GPT 5.5 Thinking.</p>
+        <button class="wn-try">Try it</button>
+        <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+      </article>
+
+      <!-- ═══ CARD 9 — Mind map ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <svg class="c9-svg" viewBox="0 0 220 150" fill="none">
+            <path class="c9-edge c9-e1" d="M92 75 C 112 75, 118 46, 138 46"/>
+            <path class="c9-edge c9-e2" d="M92 75 C 114 75, 118 75, 140 75"/>
+            <path class="c9-edge c9-e3" d="M92 75 C 112 75, 118 104, 138 104"/>
+            <path class="c9-subedge" d="M158 46 C 172 46, 174 30, 188 30"/>
+            <path class="c9-subedge" d="M158 46 C 172 46, 174 62, 188 62"/>
+
+            <g class="c9-node c9-n0">
+              <rect x="34" y="62" width="58" height="26" rx="7" fill="#242424"/>
+              <rect x="42" y="71" width="30" height="3.5" rx="1.75" fill="#fff" opacity=".85"/>
+              <rect x="42" y="78" width="20" height="3" rx="1.5" fill="#fff" opacity=".45"/>
+            </g>
+
+            <g class="c9-node c9-n1">
+              <rect x="138" y="36" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
+              <rect x="145" y="44" width="24" height="3" rx="1.5" fill="#c9c9c9"/>
+            </g>
+            <g class="c9-node c9-n2">
+              <rect x="140" y="65" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
+              <rect x="147" y="73" width="20" height="3" rx="1.5" fill="#c9c9c9"/>
+            </g>
+            <g class="c9-node c9-n3">
+              <rect x="138" y="94" width="40" height="20" rx="6" fill="#fff" stroke="#e0e0e0"/>
+              <rect x="145" y="102" width="26" height="3" rx="1.5" fill="#c9c9c9"/>
+            </g>
+
+            <circle class="c9-ring" cx="158" cy="46" r="14" stroke="#242424" stroke-width="1" fill="none"/>
+
+            <g class="c9-sub c9-s1">
+              <circle cx="194" cy="30" r="6" fill="#fff" stroke="#d4d4d4"/>
+              <circle cx="194" cy="30" r="2" fill="#8a8a8a"/>
+            </g>
+            <g class="c9-sub c9-s2">
+              <circle cx="194" cy="62" r="6" fill="#fff" stroke="#d4d4d4"/>
+              <circle cx="194" cy="62" r="2" fill="#8a8a8a"/>
+            </g>
+          </svg>
+        </div>
+        <h3 class="wn-title">Generate an interactive mind map</h3>
+        <p class="wn-desc">Map themes across a notebook, visualize relationships, spot gaps, and click into any node to go deeper.</p>
+        <button class="wn-try">Try it</button>
+      </article>
+
+      <!-- ═══ CARD 10 — Audio overview ═══ -->
+      <article class="wn-card">
+        <div class="mock">
+          <div class="c10-dlg card-surface">
+            <div class="c10-ttl">Customize</div>
+            <div class="c10-grid">
+              <div>
+                <div class="c10-lb">Language</div>
+                <div class="c10-sel">English (en)
+                  <svg width="6" height="6" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+              </div>
+              <div>
+                <div class="c10-lb">Voice</div>
+                <div class="c10-sel">Ava / Steffan
+                  <svg width="6" height="6" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+              </div>
+              <div>
+                <div class="c10-lb">Format</div>
+                <div class="c10-chips">
+                  <span class="c10-chip">Narration</span>
+                  <span class="c10-chip pick c10-p1">Dialog</span>
+                </div>
+              </div>
+              <div>
+                <div class="c10-lb">Style</div>
+                <div class="c10-chips">
+                  <span class="c10-chip">Professional</span>
+                  <span class="c10-chip pick c10-p2">Casual</span>
+                </div>
+              </div>
+              <div style="grid-column:1 / -1;">
+                <div class="c10-lb">Duration</div>
+                <div class="c10-chips">
+                  <span class="c10-chip">Shorter</span>
+                  <span class="c10-chip pick c10-p3">Medium</span>
+                  <span class="c10-chip">Longer</span>
+                </div>
+              </div>
+            </div>
+            <div class="c10-note">Any additional customizations (optional)</div>
+            <div class="c10-foot">
+              <span class="c10-eq"><i></i><i></i><i></i><i></i><i></i></span>
+              <span class="c10-gen">Generate audio</span>
+            </div>
+          </div>
+        </div>
+        <h3 class="wn-title">Create a Customized Audio Overview</h3>
+        <p class="wn-desc">Turn your notebook into a podcast-style rundown to listen while driving or walking.</p>
+        <button class="wn-try">Try it</button>
+      </article>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'cpnb_wn_seen_v1';
+
+  const dot = $('wn-dot'), panel = $('wn-panel'), scrim = $('wn-scrim'), body = $('wn-body');
+  const mega = $('wn-mega'), closeBtn = $('wn-close');
+
+  let seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  if (seen && dot) dot.style.display = 'none';
+
+  // Reveal any card at least ~a third of the way into the panel's viewport.
+  // The IntersectionObserver below does this too, but this runs synchronously
+  // so a card can never be left stranded at opacity:0 if the observer is slow
+  // to deliver its first batch.
+  const revealVisible = () => {
+    const rootRect = body.getBoundingClientRect();
+    body.querySelectorAll('.wn-card:not(.in-view)').forEach((card) => {
+      const r = card.getBoundingClientRect();
+      const shown = Math.min(r.bottom, rootRect.bottom) - Math.max(r.top, rootRect.top);
+      if (r.height && shown / r.height >= 0.35) card.classList.add('in-view');
+    });
+  };
+
+  let started = false;
+  const startObserve = () => {
+    if (started || !body) return;
+    started = true;
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => { if (en.isIntersecting) en.target.classList.add('in-view'); });
+      }, { root: body, threshold: 0.35 });
+      body.querySelectorAll('.wn-card').forEach((c) => io.observe(c));
+    }
+    body.addEventListener('scroll', revealVisible, { passive: true });
+    revealVisible();
+  };
+
+  const open = () => {
+    panel.style.transform = 'translateX(0)';
+    scrim.style.opacity = '1';
+    scrim.style.pointerEvents = 'auto';
+    if (dot) dot.style.display = 'none';
+    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    startObserve();
+  };
+  const close = () => {
+    panel.style.transform = 'translateX(100%)';
+    scrim.style.opacity = '0';
+    scrim.style.pointerEvents = 'none';
+    if (mega) mega.focus();
+  };
+
+  if (mega) mega.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  if (scrim) scrim.addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+  // replay a card's animation on hover
+  body.querySelectorAll('.wn-card').forEach((card) => {
+    card.addEventListener('mouseenter', () => {
+      if (!card.classList.contains('in-view')) return;
+      card.classList.remove('in-view');
+      void card.offsetWidth;
+      card.classList.add('in-view');
+    });
+  });
+
+  // "Try it" is a prototype affordance — it must not navigate
+  panel.querySelectorAll('.wn-try').forEach((b) => {
+    b.addEventListener('click', (e) => e.preventDefault());
+  });
+})();
+</script>
+</body>
+</html>
