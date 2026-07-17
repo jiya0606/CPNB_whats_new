@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copilot Notebooks — What's new</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{font-family:"Segoe UI Variable Display","Segoe UI Variable","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;color:#242424;background:#fff;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  a{color:#0f6cbd;text-decoration:none;} a:hover{text-decoration:underline;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ══════════ PANEL CARD SHELL ══════════ */
+  .wn-card{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;padding:14px 0;}
+  .wn-card.in-view{opacity:1;transform:none;}
+  .wn-card + .wn-card{border-top:1px solid #ededed;}   /* separator between suggestions */
+
+  .wn-inner{padding:14px;border-radius:10px;border:1px solid transparent;}
+  .is-new .wn-inner{background:#eef3fb;border-color:#dce6f4;}   /* New suggestions read as a tinted block */
+
+  .mock{height:184px;border-radius:8px;background:#f7f7f7;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;}
+  .is-new .mock{background:#e4ecf7;}
+
+  .wn-badge{display:inline-block;margin:14px 0 6px;background:#1B365D;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:5px;padding:4px 10px;}
+  .wn-title{font-size:16px;font-weight:700;line-height:1.35;margin:16px 0 4px;}
+  .wn-badge + .wn-title{margin-top:0;}
+  .wn-desc{font-size:13px;color:#616161;line-height:1.55;margin:0;}
+  .wn-try{margin-top:14px;background:#242424;color:#fff;border:none;border-radius:6px;height:32px;padding:0 16px;font-size:13px;font-weight:600;}
+  .wn-try:hover{background:#000;}
+  .wn-more{margin-top:10px;font-size:11px;color:#8a8a8a;line-height:1.45;}
+  .wn-more a{color:#0f6cbd;}
+
+  /* megaphone trigger icon — supplied asset, inlined as an alpha mask so it
+     inherits the command bar's currentColor and hover state */
+  .wn-mega-ico{display:block;width:20px;height:16px;background-color:currentColor;
+    -webkit-mask:url(data:image/png;base64,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) center/contain no-repeat;
+    mask:url(data:image/png;base64,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) center/contain no-repeat;}
+
+  /* ══════════ SCREENS ══════════
+     Three screens live in the same document; only one is mounted at a time.
+     Height/display live here so a hidden screen contributes no layout. */
+  .screen{display:none;height:100vh;}
+  .screen.on{display:flex;flex-direction:column;}
+
+  .app-bar{display:flex;align-items:center;height:48px;flex:0 0 48px;border-bottom:1px solid #efefef;background:#fff;}
+  .icon-btn{width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;}
+  .icon-btn:hover{background:#f0f0f0;}
+
+  /* ── HOME: the notebook list ── */
+  .home-main{flex:1;overflow-y:auto;background:#fff;}
+  .home-wrap{max-width:1000px;margin:0 auto;padding:36px 40px 80px;}
+  .home-h1{font-size:28px;font-weight:700;letter-spacing:-.01em;margin:0 0 6px;}
+  .home-sub{font-size:14px;color:#8a8a8a;margin:0 0 32px;}
+  .home-sec{font-size:13px;font-weight:600;color:#8a8a8a;margin:0 0 12px;}
+  .nb-grid{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:34px;}
+
+  .nb-tile{width:236px;height:172px;border:1px solid #ececec;border-radius:10px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04);padding:16px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;transition:box-shadow .18s ease,transform .18s ease;}
+  .nb-tile:hover{box-shadow:0 6px 20px rgba(0,0,0,.1);transform:translateY(-2px);}
+  .nb-top{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:auto;}
+  .nb-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .nb-chip{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#616161;background:#f0f0f0;border-radius:5px;padding:3px 7px;}
+  .nb-nm{font-size:15px;font-weight:700;line-height:1.35;margin-bottom:6px;}
+  .nb-meta{font-size:12px;color:#8a8a8a;line-height:1.4;}
+
+  /* the create tile — a greyed square the size of a notebook */
+  .nb-new{width:236px;height:172px;border:1.5px dashed #d4d4d4;border-radius:10px;background:#f7f7f7;color:#616161;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;font-size:13px;font-weight:600;transition:background .18s ease,border-color .18s ease,color .18s ease;}
+  .nb-new:hover{background:#f0f0f0;border-color:#bdbdbd;color:#242424;}
+  .nb-plus{width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid #e2e2e2;display:flex;align-items:center;justify-content:center;}
+
+  /* ── NEW NOTEBOOK: title + reference drop zone, with the tips rail on the left ── */
+  .nn-body{flex:1;display:flex;min-height:0;}
+  .tips{flex:0 0 380px;border-right:1px solid #efefef;background:#fff;display:flex;flex-direction:column;min-height:0;}
+  .tips-hd{padding:20px 20px 10px;}
+  .tips-hd h2{font-size:17px;font-weight:700;margin:0 0 3px;letter-spacing:-.01em;}
+  .tips-hd p{font-size:12px;color:#8a8a8a;margin:0;}
+  .tips-body{flex:1;overflow-y:auto;padding:0 10px 32px;}
+  .nn-main{flex:1;min-width:0;display:flex;flex-direction:column;width:100%;max-width:1000px;margin:0 auto;padding:26px 40px 40px;}
+  .nn-title{border:none;outline:none;font:inherit;font-size:28px;font-weight:700;letter-spacing:-.01em;color:#242424;padding:4px 0;margin-bottom:20px;background:transparent;}
+  .nn-title::placeholder{color:#c8c8c8;}
+  .nn-drop{flex:1;border:2px dashed #d8d8d8;border-radius:14px;background:#fbfbfb;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;transition:border-color .18s ease,background .18s ease;}
+  .nn-drop.over{border-color:#0f6cbd;background:#f2f7fd;}
+  .nn-drop-ico{color:#c4c4c4;margin-bottom:16px;}
+  .nn-h{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:0 0 8px;}
+  .nn-p{font-size:14px;color:#616161;margin:0 0 22px;}
+  .nn-btns{display:flex;gap:10px;}
+  .btn-dark{background:#242424;color:#fff;border:none;border-radius:6px;height:36px;padding:0 18px;font-size:14px;font-weight:600;}
+  .btn-dark:hover{background:#000;}
+  .btn-light{background:#fff;color:#242424;border:1px solid #d8d8d8;border-radius:6px;height:36px;padding:0 18px;font-size:14px;font-weight:600;}
+  .btn-light:hover{background:#f5f5f5;}
+
+  /* ── feature card in the chat rail + the card it expands into ──
+     The wrapper carries the pulsing halo: the card itself is overflow:hidden to
+     clip the shine sweep, which would clip an outward box-shadow too. */
+  .ft-wrap{position:relative;width:100%;max-width:300px;margin:18px auto 0;flex:0 0 auto;}
+  .ft-wrap::before{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;animation:ftHalo 3s ease-out infinite;}
+  @keyframes ftHalo{
+    0%{box-shadow:0 0 0 0 rgba(27,54,93,.30);}
+    70%{box-shadow:0 0 0 12px rgba(27,54,93,0);}
+    100%{box-shadow:0 0 0 0 rgba(27,54,93,0);}
+  }
+
+  .ft-card{position:relative;z-index:1;width:100%;display:flex;align-items:center;gap:11px;text-align:left;padding:11px 12px;border-radius:12px;border:1px solid #cfdff5;background:linear-gradient(120deg,#f8fbff 0%,#eaf1fb 58%,#e2ecf9 100%);box-shadow:0 2px 8px rgba(27,54,93,.09);transition:transform .18s ease,box-shadow .18s ease;}
+  .ft-card:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(27,54,93,.19);}
+  .ft-card:hover .ft-ico{transform:scale(1.06) rotate(-5deg);}
+
+  .ft-ico{width:32px;height:32px;flex:0 0 32px;border-radius:9px;background:linear-gradient(145deg,#2f5a94 0%,#1B365D 100%);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 9px rgba(27,54,93,.32);transition:transform .18s ease;}
+  .ft-txt{flex:1;min-width:0;}
+  .ft-pill{display:inline-block;margin-bottom:4px;font-size:8.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:#1B365D;border-radius:20px;padding:2px 7px;box-shadow:0 2px 6px rgba(27,54,93,.35);animation:ftPill 2.2s ease-in-out infinite;}
+  @keyframes ftPill{0%,100%{transform:scale(1);}50%{transform:scale(1.09);}}
+  .ft-nm{display:block;font-size:12px;font-weight:700;color:#1B365D;line-height:1.4;letter-spacing:-.005em;}
+
+  /* sits over the banner rather than inside it — nesting a button in a button is invalid */
+  .ft-dismiss{position:absolute;top:9px;right:11px;z-index:2;border:none;background:transparent;padding:2px 1px;font-size:10.5px;font-weight:600;color:#5a7099;text-decoration:underline;text-underline-offset:2px;}
+  .ft-dismiss:hover{color:#1B365D;}
+
+  .ft-scrim{position:absolute;inset:0;background:rgba(24,24,24,.28);opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:60;}
+  .ft-scrim.on{opacity:1;pointer-events:auto;}
+  .ft-modal{position:absolute;left:50%;top:50%;width:560px;max-width:calc(100% - 40px);max-height:calc(100% - 40px);overflow-y:auto;background:#fff;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.24);padding:14px;z-index:70;opacity:0;pointer-events:none;transform:translate(-50%,-46%) scale(.97);transition:opacity .22s ease,transform .22s cubic-bezier(.22,.9,.3,1);}
+  .ft-modal.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  #ft-close{position:absolute;top:18px;right:18px;z-index:2;background:rgba(255,255,255,.9);}
+
+  /* the blown-up card: the mock is pixel-fixed, so scale it rather than reflow it */
+  .wn-card.lg{padding:0;}
+  .wn-card.lg .wn-inner{padding:20px;}
+  .wn-card.lg .mock{height:286px;}
+  .wn-card.lg .mock > *{transform:scale(1.55);}
+  .wn-card.lg .wn-badge{margin-top:18px;}
+  .wn-card.lg .wn-title{font-size:22px;line-height:1.3;}
+  .wn-card.lg .wn-desc{font-size:15px;}
+  .wn-card.lg .wn-try{height:38px;padding:0 20px;font-size:14px;}
+  .wn-card.lg .wn-more{font-size:12px;}
+
+  /* ══════════ SHARED MOCK PRIMITIVES ══════════
+     A miniature CPNB window: page/canvas on the left, chat rail on the right.
+     Real text is used wherever the text itself is the point (an edited
+     sentence, a cited passage, a model name); grey bars are filler only. */
+  .frame{position:relative;width:306px;height:162px;background:#fff;border-radius:7px;box-shadow:0 2px 10px rgba(0,0,0,.1);display:flex;overflow:hidden;}
+  .frame.col{flex-direction:column;}
+  .pane{padding:9px;min-width:0;}
+  .pane-doc{flex:1;position:relative;border-right:1px solid #f1f1f1;}
+  .pane-chat{flex:0 0 118px;background:#fbfbfd;position:relative;}
+  .pane-hd{display:flex;align-items:center;gap:4px;font-size:6.5px;color:#a0a0a0;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:7px;}
+  .ln{display:block;height:4px;border-radius:2px;background:#e6e6e6;margin-bottom:6px;}
+  .tx{font-size:7.5px;line-height:1.55;color:#3a3a3a;}
+  .tt{font-size:9px;font-weight:700;color:#242424;}
+  .cursor{position:absolute;width:12px;height:15px;pointer-events:none;z-index:8;}
+  .card-surface{background:#fff;border-radius:7px;box-shadow:0 2px 10px rgba(0,0,0,.09);}
+
+  /* ══════════ CARD 1 — Select References: cursor walks Files / Meetings / Emails ══════════ */
+  .c1-dlg{position:relative;width:262px;padding:10px 11px 9px;}
+  .c1-ttl{font-size:10px;font-weight:700;margin-bottom:7px;}
+  .c1-search{display:flex;align-items:center;gap:5px;border-bottom:1px solid #e8e8e8;padding-bottom:5px;margin-bottom:7px;}
+  .c1-tabs{display:flex;gap:3px;margin-bottom:7px;}
+  .c1-tab{font-size:8px;font-weight:600;color:#616161;padding:3px 8px;border-radius:20px;white-space:nowrap;}
+  .c1-list{position:relative;height:74px;}
+  .c1-group{position:absolute;inset:0;opacity:0;}
+  .c1-row{display:flex;align-items:center;gap:6px;padding:3px 2px;}
+  .c1-ico{width:14px;height:14px;border-radius:3px;flex:0 0 14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:6px;font-weight:700;}
+  .c1-nm{display:block;font-size:7.5px;color:#242424;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .c1-sub{display:block;font-size:6.5px;color:#a5a5a5;line-height:1.35;}
+  .c1-foot{display:flex;justify-content:flex-end;gap:5px;margin-top:6px;}
+  .c1-btn{font-size:7px;font-weight:600;border-radius:4px;padding:3px 9px;background:#242424;color:#fff;}
+  .c1-btn.ghost{background:#f0f0f0;color:#616161;}
+
+  .in-view .c1-tab:nth-child(1){animation:c1t1 2.7s ease both;}
+  .in-view .c1-tab:nth-child(2){animation:c1t2 2.7s ease both;}
+  .in-view .c1-tab:nth-child(3){animation:c1t3 2.7s ease both;}
+  @keyframes c1t1{0%,30%{background:#242424;color:#fff;}36%,100%{background:transparent;color:#616161;}}
+  @keyframes c1t2{0%,30%{background:transparent;color:#616161;}36%,63%{background:#242424;color:#fff;}69%,100%{background:transparent;color:#616161;}}
+  @keyframes c1t3{0%,63%{background:transparent;color:#616161;}69%,100%{background:#242424;color:#fff;}}
+  .in-view .c1-group:nth-child(1){animation:c1g1 2.7s ease both;}
+  .in-view .c1-group:nth-child(2){animation:c1g2 2.7s ease both;}
+  .in-view .c1-group:nth-child(3){animation:c1g3 2.7s ease both;}
+  @keyframes c1g1{0%,29%{opacity:1;transform:none;}37%,100%{opacity:0;transform:translateY(-5px);}}
+  @keyframes c1g2{0%,31%{opacity:0;transform:translateY(5px);}39%,62%{opacity:1;transform:none;}70%,100%{opacity:0;transform:translateY(-5px);}}
+  @keyframes c1g3{0%,64%{opacity:0;transform:translateY(5px);}72%,100%{opacity:1;transform:none;}}
+  .c1-cursor{top:42px;left:0;}
+  .in-view .c1-cursor{animation:c1cur 2.7s cubic-bezier(.5,.05,.2,1) both;}
+  @keyframes c1cur{0%,26%{transform:translate(24px,0);}36%,59%{transform:translate(64px,0);}69%,100%{transform:translate(124px,0);}}
+
+  /* ══════════ CARD 2 — select in chat → drag across → text lands on the page ══════════ */
+  .c2-place{font-size:7.5px;color:#c0c0c0;font-style:italic;}
+  .c2-msg{font-size:7px;line-height:1.6;color:#3a3a3a;}
+  .c2-sel{border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;padding:1px 0;}
+  .in-view .c2-sel{animation:c2sel 3s ease both;}
+  @keyframes c2sel{0%,7%{background:transparent;}13%,66%{background:#bcd3f0;}74%,100%{background:transparent;}}
+
+  .c2-ghost{position:absolute;left:196px;top:44px;width:104px;padding:6px 7px;border-radius:5px;background:#fff;border:1px solid #cddcf0;box-shadow:0 8px 20px rgba(20,40,80,.24);opacity:0;z-index:7;font-size:6.5px;line-height:1.5;color:#3a3a3a;}
+  .in-view .c2-ghost{animation:c2ghost 3s cubic-bezier(.3,.7,.3,1) both;}
+  @keyframes c2ghost{
+    0%,24%{opacity:0;transform:translate(0,0) scale(.95);}
+    31%{opacity:1;transform:translate(0,0) scale(1);}
+    66%{opacity:1;transform:translate(-152px,32px) scale(1);}
+    73%,100%{opacity:0;transform:translate(-152px,35px) scale(.98);}
+  }
+  /* what the drop leaves behind on the page */
+  .c2-landed{opacity:0;border-left:2px solid #9dbde6;padding-left:5px;margin-top:2px;font-size:7px;line-height:1.55;color:#3a3a3a;}
+  .in-view .c2-landed{animation:c2land .7s ease 2.2s both;}
+  @keyframes c2land{0%{opacity:0;background:#dbe7f8;transform:translateY(-3px);}55%{opacity:1;background:#dbe7f8;}100%{opacity:1;background:transparent;transform:none;}}
+  .c2-cursor{top:0;left:0;}
+  .in-view .c2-cursor{animation:c2cur 3s cubic-bezier(.3,.7,.3,1) both;}
+  @keyframes c2cur{
+    0%,14%{transform:translate(268px,40px);}
+    24%{transform:translate(240px,54px);}
+    31%{transform:translate(238px,57px);}
+    66%,100%{transform:translate(86px,89px);}
+  }
+
+  /* ══════════ CARD 3 — prompt the agent → generating → templated deliverable ══════════ */
+  .c3-stage{flex:1;position:relative;padding:9px;}
+  .c3-composer{flex:0 0 28px;border-top:1px solid #f1f1f1;display:flex;align-items:center;gap:6px;padding:0 8px;}
+  .c3-prompt{flex:1;font-size:7px;color:#242424;white-space:nowrap;overflow:hidden;width:0;}
+  .in-view .c3-prompt{animation:c3type 1.1s steps(32,end) .2s both;}
+  @keyframes c3type{from{width:0;}to{width:220px;}}
+  .c3-send{width:14px;height:14px;border-radius:50%;background:#242424;display:flex;align-items:center;justify-content:center;flex:0 0 14px;}
+  .in-view .c3-send{animation:c3send .45s ease 1.35s;}
+  @keyframes c3send{50%{transform:scale(.84);}}
+
+  .c3-gen{position:absolute;left:10px;top:38px;display:flex;align-items:center;gap:7px;opacity:0;}
+  .c3-gen .lbl{font-size:7.5px;color:#8a8a8a;}
+  .in-view .c3-gen{animation:c3gen 3.1s ease both;}
+  @keyframes c3gen{0%,48%{opacity:0;}54%,64%{opacity:1;}72%,100%{opacity:0;}}
+  .c3-shimmer{width:56px;height:4px;border-radius:2px;background:linear-gradient(90deg,#e2e2e2 25%,#f6f6f6 50%,#e2e2e2 75%);background-size:200% 100%;}
+  .in-view .c3-shimmer{animation:c3sh 1s linear infinite;}
+  @keyframes c3sh{to{background-position:-200% 0;}}
+
+  .c3-doc{position:absolute;left:50%;top:3px;width:150px;margin-left:-75px;background:#fff;border:1px solid #e4e4e4;border-radius:4px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.16);opacity:0;transform:translateY(12px) scale(.95);}
+  .in-view .c3-doc{animation:c3doc .7s cubic-bezier(.22,.9,.3,1) 2.25s forwards;}
+  @keyframes c3doc{to{opacity:1;transform:translateY(0) scale(1);}}
+  .c3-band{height:16px;background:#1B365D;display:flex;align-items:center;gap:4px;padding:0 6px;}
+  .c3-band i{display:block;width:7px;height:7px;border-radius:1px;background:#fff;opacity:.95;}
+  .c3-band span{font-size:5.5px;font-weight:700;letter-spacing:.12em;color:#fff;opacity:.9;}
+  .c3-body{padding:7px;}
+  .c3-h{font-size:7.5px;font-weight:700;color:#242424;line-height:1.3;}
+  .c3-sub{font-size:5.5px;color:#9a9a9a;margin:2px 0 6px;letter-spacing:.03em;}
+  .c3-body .ln{height:3px;margin-bottom:4px;}
+  .c3-tbl{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:5px 0 4px;}
+  .c3-tbl i{display:block;height:8px;border-radius:1px;background:#f2f5fa;border:1px solid #e6ecf5;}
+  .c3-tbl i:nth-child(-n+2){background:#e7edf6;}
+  .c3-foot{border-top:1px solid #f0f0f0;padding:3px 7px;font-size:4.8px;color:#b5b5b5;letter-spacing:.04em;text-align:center;}
+
+  /* ══════════ CARD 4 — Share popup: typing + org autocomplete ══════════ */
+  .c4-dlg{width:250px;padding:11px 12px;}
+  .c4-ttl{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;margin-bottom:9px;}
+  .c4-row{display:flex;gap:6px;align-items:center;}
+  .c4-input{flex:1;height:21px;border:1px solid #e2e2e2;border-radius:4px;display:flex;align-items:center;padding:0 7px;overflow:hidden;}
+  .c4-typed{font-size:8px;color:#242424;white-space:nowrap;overflow:hidden;width:0;}
+  .in-view .c4-typed{animation:c4type 1s steps(11,end) .3s forwards;}
+  @keyframes c4type{to{width:42px;}}
+  .c4-caret{width:1px;height:9px;background:#242424;margin-left:1px;}
+  .in-view .c4-caret{animation:c4blink .7s steps(1) infinite;}
+  @keyframes c4blink{50%{opacity:0;}}
+  .c4-invite{font-size:8px;font-weight:600;color:#8a8a8a;background:#f0f0f0;border-radius:4px;padding:5px 10px;}
+  .in-view .c4-invite{animation:c4inv .4s ease 1.75s forwards;}
+  @keyframes c4inv{to{background:#242424;color:#fff;}}
+  .c4-auto{margin-top:5px;display:flex;align-items:center;gap:7px;padding:6px 7px;border-radius:5px;background:#f4f6fa;border:1px solid #e6ebf3;opacity:0;transform:translateY(-4px);}
+  .in-view .c4-auto{animation:c4auto .45s cubic-bezier(.22,.9,.3,1) 1.4s forwards;}
+  @keyframes c4auto{to{opacity:1;transform:none;}}
+  .c4-av{width:20px;height:20px;border-radius:50%;flex:0 0 20px;background:#6b6bb0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;}
+  .c4-nm{font-size:8px;font-weight:600;line-height:1.35;}
+  .c4-em{font-size:7px;color:#8a8a8a;line-height:1.35;}
+  .c4-note{display:flex;gap:5px;margin-top:9px;font-size:6.5px;color:#8a8a8a;line-height:1.5;}
+  .c4-mem{border-top:1px solid #f0f0f0;margin-top:8px;padding-top:6px;font-size:7px;font-weight:600;color:#616161;}
+
+  /* ══════════ CARD 5 — Sources flyout off the chat composer ══════════ */
+  .c5-canvas{flex:1;padding:9px;}
+  .c5-composer{flex:0 0 26px;border-top:1px solid #f1f1f1;display:flex;align-items:center;gap:5px;padding:0 8px;}
+  .c5-plc{flex:1;font-size:7px;color:#b5b5b5;}
+  .c5-chip{font-size:7px;font-weight:600;border-radius:4px;padding:3px 8px;background:#f0f0f0;color:#424242;}
+  .in-view .c5-chip{animation:c5chip .4s ease .35s forwards;}
+  @keyframes c5chip{to{background:#242424;color:#fff;}}
+  .c5-fly{position:absolute;right:8px;bottom:30px;width:172px;background:#fff;border:1px solid #ececec;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px;transform-origin:bottom right;opacity:0;transform:scale(.9) translateY(6px);z-index:6;}
+  .in-view .c5-fly{animation:c5fly .45s cubic-bezier(.22,.9,.3,1) .55s forwards;}
+  @keyframes c5fly{to{opacity:1;transform:none;}}
+  .c5-src{height:15px;border:1px solid #ececec;border-radius:4px;display:flex;align-items:center;padding:0 6px;font-size:6.5px;color:#b8b8b8;margin-bottom:5px;}
+  .c5-row{display:flex;align-items:center;gap:6px;padding:2px 3px;}
+  .c5-ico{width:11px;height:11px;border-radius:2px;flex:0 0 11px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:5.5px;font-weight:700;}
+  .c5-lb{flex:1;font-size:7px;color:#333;}
+  .c5-tg{width:17px;height:9px;border-radius:5px;background:#d8d8d8;flex:0 0 17px;position:relative;}
+  .c5-tg::after{content:"";position:absolute;top:1.5px;left:1.5px;width:6px;height:6px;border-radius:50%;background:#fff;}
+  .c5-tg.on{background:#242424;}
+  .c5-tg.on::after{transform:translateX(8px);}
+  .c5-div{height:1px;background:#efefef;margin:4px 0;}
+  .c5-conn{opacity:0;transform:translateY(5px);}
+  .in-view .c5-conn{animation:c5conn .45s cubic-bezier(.22,.9,.3,1) both;}
+  @keyframes c5conn{to{opacity:1;transform:none;}}
+  .in-view .c5-conn:nth-of-type(1){animation-delay:1s;}
+  .in-view .c5-conn:nth-of-type(2){animation-delay:1.13s;}
+  .in-view .c5-conn:nth-of-type(3){animation-delay:1.26s;}
+  .c5-flip{background:#d8d8d8;}
+  .in-view .c5-flip{animation:c5flip .45s cubic-bezier(.3,.8,.3,1) 1.7s forwards;}
+  @keyframes c5flip{to{background:#242424;}}
+  .in-view .c5-flip::after{animation:c5knob .45s cubic-bezier(.3,.8,.3,1) 1.7s forwards;}
+  @keyframes c5knob{to{transform:translateX(8px);}}
+  .c5-foot{display:flex;justify-content:space-between;border-top:1px solid #f2f2f2;margin-top:5px;padding-top:5px;font-size:6px;}
+  .c5-foot span{color:#8a8a8a;font-weight:600;}
+  .c5-foot a{color:#0f6cbd;font-weight:600;}
+
+  /* ══════════ CARD 6 — Suggested edits: the sentence visibly rewrites on Apply ══════════ */
+  .pane-rail{flex:0 0 128px;background:#fbfbfd;position:relative;}
+  .c6-h{font-size:8.5px;font-weight:700;margin-bottom:5px;}
+  .c6-p{font-size:7px;line-height:1.6;color:#4a4a4a;margin:0 0 5px;}
+  .c6-swap{position:relative;height:34px;}
+  .c6-before,.c6-after{position:absolute;left:0;top:0;right:0;font-size:7px;line-height:1.6;padding:1px 2px;border-radius:2px;}
+  .c6-before{color:#4a4a4a;background:#dbe7f8;}
+  .c6-after{color:#242424;font-weight:600;opacity:0;}
+  .in-view .c6-before{animation:c6out .35s ease 1.85s forwards;}
+  @keyframes c6out{to{opacity:0;}}
+  .in-view .c6-after{animation:c6in .8s ease 1.95s forwards;}
+  @keyframes c6in{0%{opacity:0;background:#cfe8d5;}55%{opacity:1;background:#cfe8d5;}100%{opacity:1;background:transparent;}}
+
+  .c6-sug{background:#fff;border:1px solid #e4e4e4;border-radius:6px;padding:7px;box-shadow:0 3px 10px rgba(0,0,0,.1);opacity:0;transform:translateX(12px);}
+  .in-view .c6-sug{animation:c6sug .5s cubic-bezier(.22,.9,.3,1) .55s forwards;}
+  @keyframes c6sug{to{opacity:1;transform:none;}}
+  .c6-tag{display:inline-block;font-size:5.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#1B365D;background:#e4ecf7;border-radius:3px;padding:2px 5px;margin-bottom:5px;}
+  .c6-old{font-size:6.2px;line-height:1.45;color:#a5a5a5;text-decoration:line-through;margin-bottom:4px;}
+  .c6-new{font-size:6.5px;line-height:1.45;color:#242424;font-weight:600;margin-bottom:6px;}
+  .c6-apply{display:inline-block;font-size:7px;font-weight:600;color:#fff;background:#242424;border-radius:4px;padding:4px 10px;}
+  .in-view .c6-apply{animation:c6press .4s ease 1.6s;}
+  @keyframes c6press{50%{transform:scale(.88);background:#000;}}
+  .c6-cursor{top:0;left:0;opacity:0;}
+  .in-view .c6-cursor{animation:c6cur 2.9s cubic-bezier(.4,.6,.3,1) both;}
+  @keyframes c6cur{
+    0%,17%{opacity:0;transform:translate(250px,40px);}
+    26%{opacity:1;transform:translate(240px,62px);}
+    50%{opacity:1;transform:translate(212px,110px);}
+    62%{opacity:1;transform:translate(212px,110px);}
+    82%,100%{opacity:0;transform:translate(212px,110px);}
+  }
+
+  /* ══════════ CARD 7 — citation chip → source opens on the cited passage ══════════ */
+  .c7-ans{font-size:7px;line-height:1.6;color:#3a3a3a;}
+  .c7-chip{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:3px;background:#f0f0f0;font-size:6.5px;font-weight:700;color:#616161;vertical-align:middle;margin-left:2px;}
+  .in-view .c7-chip{animation:c7chip .5s ease .85s forwards;}
+  @keyframes c7chip{45%{transform:scale(.78);}100%{background:#1B365D;color:#fff;transform:scale(1);}}
+  .c7-src{opacity:0;transform:translateX(-12px);}
+  .in-view .c7-src{animation:c7src .55s cubic-bezier(.22,.85,.3,1) 1.25s forwards;}
+  @keyframes c7src{to{opacity:1;transform:none;}}
+  .c7-doc{font-size:6.5px;line-height:1.65;color:#5a5a5a;}
+  .c7-quote{border-radius:2px;padding:1px 2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;color:#242424;}
+  .in-view .c7-quote{animation:c7hl .6s ease 1.85s forwards;}
+  @keyframes c7hl{0%{background:transparent;}100%{background:#ffe8a3;box-shadow:0 0 0 1px #f0d68a;}}
+  .c7-cursor{top:0;left:0;}
+  .in-view .c7-cursor{animation:c7cur 2.8s cubic-bezier(.4,.6,.3,1) both;}
+  @keyframes c7cur{
+    0%,10%{transform:translate(288px,30px);}
+    28%,42%{transform:translate(236px,74px);}
+    100%{transform:translate(236px,74px);}
+  }
+
+  /* ══════════ CARD 8 — model switch → answer re-streams ══════════ */
+  .c8-rail{position:relative;width:238px;height:162px;background:#fff;border-radius:7px;box-shadow:0 2px 10px rgba(0,0,0,.1);overflow:hidden;display:flex;flex-direction:column;}
+  .c8-hd{flex:0 0 20px;border-bottom:1px solid #f2f2f2;display:flex;align-items:center;justify-content:space-between;padding:0 9px;font-size:7.5px;font-weight:700;}
+  .c8-body{flex:1;padding:9px;position:relative;}
+  .c8-cmp{flex:0 0 22px;border-top:1px solid #f2f2f2;display:flex;align-items:center;padding:0 9px;font-size:7px;color:#bcbcbc;}
+  .c8-line{font-size:7px;line-height:1.6;color:#3a3a3a;white-space:nowrap;overflow:hidden;width:0;}
+  .in-view .c8-line{animation:c8st .5s steps(30,end) both;}
+  @keyframes c8st{from{width:0;}to{width:100%;}}
+  .in-view .c8-line:nth-of-type(1){animation-delay:1.95s;}
+  .in-view .c8-line:nth-of-type(2){animation-delay:2.35s;}
+  .in-view .c8-line:nth-of-type(3){animation-delay:2.75s;}
+  .c8-bar{display:flex;gap:5px;margin-top:10px;opacity:0;transform:translateY(4px);}
+  .in-view .c8-bar{animation:c8bar .4s ease .4s forwards;}
+  @keyframes c8bar{to{opacity:1;transform:none;}}
+  .c8-btn{font-size:7px;font-weight:600;color:#424242;background:#f0f0f0;border-radius:4px;padding:4px 8px;display:flex;align-items:center;gap:3px;}
+  .c8-btn.act{background:#242424;color:#fff;}
+  .c8-menu{position:absolute;left:9px;bottom:6px;width:132px;padding:4px;border-radius:6px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.2);border:1px solid #ececec;opacity:0;transform:translateY(6px) scale(.96);transform-origin:bottom left;z-index:6;}
+  .in-view .c8-menu{animation:c8menu .45s cubic-bezier(.22,.9,.3,1) 1s forwards,c8menuOut .35s ease 1.95s forwards;}
+  @keyframes c8menu{to{opacity:1;transform:none;}}
+  @keyframes c8menuOut{to{opacity:0;transform:translateY(4px) scale(.97);}}
+  .c8-opt{display:flex;align-items:center;gap:5px;font-size:7px;color:#333;padding:4px 6px;border-radius:4px;}
+  .c8-opt .ck{width:8px;flex:0 0 8px;color:#1B365D;}
+  .c8-opt.sel{background:#eef3fb;font-weight:600;color:#1B365D;}
+  .c8-cursor{top:0;left:0;}
+  .in-view .c8-cursor{animation:c8cur 3.4s cubic-bezier(.4,.6,.3,1) both;}
+  @keyframes c8cur{
+    0%,8%{transform:translate(206px,42px);}
+    22%,28%{transform:translate(128px,86px);}   /* Switch model */
+    44%,52%{transform:translate(74px,124px);}   /* GPT 5.5 in the menu */
+    70%,100%{transform:translate(74px,124px);}
+  }
+
+  /* ══════════ CARD 9 — mind map ══════════ */
+  .c9-svg{width:100%;height:100%;}
+  .c9-lbl{font-size:6.5px;font-weight:600;fill:#3a3a3a;font-family:inherit;}
+  .c9-lbl.mid{fill:#fff;font-size:7px;}
+  .c9-edge{stroke:#d4d4d4;stroke-width:1.2;fill:none;stroke-dasharray:80;stroke-dashoffset:80;}
+  .in-view .c9-edge{animation:c9draw .55s ease forwards;}
+  @keyframes c9draw{to{stroke-dashoffset:0;}}
+  .in-view .c9-e1{animation-delay:.3s;} .in-view .c9-e2{animation-delay:.4s;} .in-view .c9-e3{animation-delay:.5s;}
+  .c9-node{opacity:0;transform:scale(.5);transform-origin:center;transform-box:fill-box;}
+  .in-view .c9-node{animation:c9pop .45s cubic-bezier(.2,.9,.3,1.1) forwards;}
+  @keyframes c9pop{to{opacity:1;transform:scale(1);}}
+  .in-view .c9-n0{animation-delay:.15s;}
+  .in-view .c9-n1{animation-delay:.6s;} .in-view .c9-n2{animation-delay:.7s;} .in-view .c9-n3{animation-delay:.8s;}
+  .c9-sub{opacity:0;transform:scale(.4);transform-origin:center;transform-box:fill-box;}
+  .in-view .c9-sub{animation:c9pop .5s cubic-bezier(.2,.9,.3,1.1) forwards;}
+  .in-view .c9-s1{animation-delay:1.2s;} .in-view .c9-s2{animation-delay:1.33s;}
+  .c9-subedge{stroke:#e0e0e0;stroke-width:1;fill:none;stroke-dasharray:40;stroke-dashoffset:40;}
+  .in-view .c9-subedge{animation:c9draw .45s ease 1.1s forwards;}
+  .c9-ring{opacity:0;transform-origin:center;transform-box:fill-box;}
+  .in-view .c9-ring{animation:c9ring 1.1s ease 1.25s forwards;}
+  @keyframes c9ring{0%{opacity:.5;transform:scale(1);}100%{opacity:0;transform:scale(2);}}
+
+  /* ══════════ CARD 10 — audio Customize popup ══════════ */
+  .c10-dlg{width:250px;padding:9px 11px;}
+  .c10-ttl{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;margin-bottom:7px;}
+  .c10-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;}
+  .c10-lb{font-size:7px;color:#8a8a8a;font-weight:600;margin-bottom:3px;line-height:1.2;}
+  .c10-sel{height:15px;border:1px solid #e2e2e2;border-radius:3px;display:flex;align-items:center;justify-content:space-between;padding:0 5px;font-size:7.5px;color:#424242;}
+  .c10-chips{display:flex;gap:4px;}
+  .c10-chip{font-size:7px;font-weight:600;color:#424242;border:1px solid #e2e2e2;border-radius:3px;padding:2.5px 6px;background:#fff;line-height:1.3;}
+  .in-view .c10-chip.pick{animation:c10pick .45s cubic-bezier(.3,.8,.3,1) both;}
+  @keyframes c10pick{to{background:#242424;border-color:#242424;color:#fff;}}
+  .in-view .c10-p1{animation-delay:.55s;} .in-view .c10-p2{animation-delay:.73s;} .in-view .c10-p3{animation-delay:.91s;}
+  .c10-note{margin-top:6px;height:17px;border:1px solid #e6e6e6;border-radius:4px;background:#fafafa;display:flex;align-items:center;padding:0 6px;font-size:6.5px;color:#b5b5b5;}
+  .c10-foot{display:flex;align-items:center;justify-content:flex-end;margin-top:6px;}
+  .c10-gen{font-size:8px;font-weight:600;color:#fff;background:#242424;border-radius:4px;padding:4px 10px;opacity:0;transform:translateY(4px);}
+  .in-view .c10-gen{animation:c10gen .45s cubic-bezier(.22,.9,.3,1) 1.2s forwards;}
+  @keyframes c10gen{to{opacity:1;transform:none;}}
+  .c10-eq{display:flex;align-items:flex-end;gap:2px;height:12px;margin-right:auto;}
+  .c10-eq i{display:block;width:2px;background:#c9c9c9;border-radius:1px;height:3px;}
+  .in-view .c10-eq i{animation:c10eq 1s ease-in-out infinite;}
+  @keyframes c10eq{0%,100%{height:3px;}50%{height:11px;}}
+  .in-view .c10-eq i:nth-child(2){animation-delay:.12s;}
+  .in-view .c10-eq i:nth-child(3){animation-delay:.24s;}
+  .in-view .c10-eq i:nth-child(4){animation-delay:.36s;}
+  .in-view .c10-eq i:nth-child(5){animation-delay:.48s;}
+
+  @media (prefers-reduced-motion:reduce){
+    .ft-wrap::before,.ft-pill{animation:none!important;}
+    .wn-card,.wn-card *{animation:none!important;transition:none!important;}
+    .wn-card{opacity:1;transform:none;}
+    .c6-before,.c2-ghost,.c8-menu{opacity:0;}
+    .c6-after,.c2-landed,.c7-src,.c3-doc,.c5-fly{opacity:1;transform:none;}
+    .c8-line{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ SCREEN 1 — HOME (notebook list) ════════════════════════ -->
+<div id="screen-home" class="screen">
+
+  <header class="app-bar">
+    <div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex:0 0 48px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3c-.6 4-1.4 4.8-5.4 5.4C10.6 9 11.4 9.8 12 13.8c.6-4 1.4-4.8 5.4-5.4C13.4 7.8 12.6 7 12 3Z" fill="#4b4b8f"/><path d="M17.5 13.5c-.35 2.3-.85 2.8-3.15 3.15 2.3.35 2.8.85 3.15 3.15.35-2.3.85-2.8 3.15-3.15-2.3-.35-2.8-.85-3.15-3.15Z" fill="#6b6bb0"/></svg>
+    </div>
+    <span style="font-size:14px;font-weight:600;">Copilot Notebooks</span>
+    <div style="flex:1;"></div>
+    <div style="padding-right:12px;display:flex;align-items:center;gap:6px;">
+      <button class="icon-btn" title="Search" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg></button>
+      <span style="width:28px;height:28px;border-radius:50%;background:#6b6bb0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">JG</span>
+    </div>
+  </header>
+
+  <main class="home-main">
+    <div class="home-wrap">
+      <h1 class="home-h1">Notebooks</h1>
+      <p class="home-sub">Bring your files, meetings, and emails together in one place — then create with them.</p>
+
+      <div class="home-sec">Your notebooks</div>
+      <div class="nb-grid">
+        <!-- the create tile sits to the left of the user's own notebooks -->
+        <button id="go-new" class="nb-new" type="button">
+          <span class="nb-plus"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#424242" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+          New notebook
+        </button>
+
+        <button id="go-nb" class="nb-tile" type="button">
+          <span class="nb-top">
+            <span class="nb-ico" style="background:#e6e1f5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg></span>
+          </span>
+          <span class="nb-nm">Customer Feedback Themes and Next Steps</span>
+          <span class="nb-meta">7 references · Edited June 9, 2026</span>
+        </button>
+      </div>
+
+      <div class="home-sec">Recommended for you</div>
+      <div class="nb-grid">
+        <button class="nb-tile" type="button">
+          <span class="nb-top">
+            <span class="nb-ico" style="background:#d9f0e8;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f8a70" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.2"/><path d="M15 19a4 4 0 0 1 6.5-3.1"/></svg></span>
+            <span class="nb-chip">Recommended</span>
+          </span>
+          <span class="nb-nm">1:1 Meeting Notes</span>
+          <span class="nb-meta">From your Teams transcripts with Priya</span>
+        </button>
+
+        <button class="nb-tile" type="button">
+          <span class="nb-top">
+            <span class="nb-ico" style="background:#fbe9d2;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b8791d" stroke-width="1.6"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.4.3.5.8.5 1.1h6c0-.3.1-.8.5-1.1A6 6 0 0 0 12 3Z"/></svg></span>
+            <span class="nb-chip">Recommended</span>
+          </span>
+          <span class="nb-nm">Feature Spec Brainstorming</span>
+          <span class="nb-meta">From your roadmap notes and product brief</span>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ════════════════════════ SCREEN 2 — NEW NOTEBOOK ════════════════════════ -->
+<div id="screen-new" class="screen">
+
+  <header class="app-bar">
+    <div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex:0 0 48px;">
+      <button id="new-back" class="icon-btn" title="Back to notebooks" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+    <span style="font-size:14px;font-weight:600;">New notebook</span>
+  </header>
+
+  <div class="nn-body">
+    <!-- left rail: what a notebook can do once it has references -->
+    <aside class="tips">
+      <div class="tips-hd">
+        <h2>What you can do</h2>
+        <p>Once your references are in, here's what a notebook can make.</p>
+      </div>
+      <div class="tips-body" id="tips-body"></div>
+    </aside>
+
+    <main class="nn-main">
+      <input class="nn-title" type="text" placeholder="Untitled notebook" aria-label="Notebook title">
+      <div class="nn-drop" id="nn-drop">
+        <svg class="nn-drop-ico" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 4h9l3 3v13H6z"/><path d="M15 4v3h3"/><path d="M12 11v6M9.5 13.5 12 11l2.5 2.5"/></svg>
+        <h2 class="nn-h">Better references make better outputs</h2>
+        <p class="nn-p">Drag and drop files here to add them as references</p>
+        <div class="nn-btns">
+          <button class="btn-dark" type="button">Add work content</button>
+          <button class="btn-light" type="button">Upload</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ════════════════════════ SCREEN 3 — THE NOTEBOOK ════════════════════════ -->
+<div id="screen-nb" class="screen" style="position:relative;width:100%;overflow:hidden;background:#fff;">
+
+  <!-- ══ TOP COMMAND BAR ══ -->
+  <header style="display:flex;align-items:center;height:48px;flex:0 0 48px;border-bottom:1px solid #efefef;background:#fff;">
+    <div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex:0 0 48px;">
+      <button id="nb-back" class="icon-btn" title="Back to notebooks" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding-left:6px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      <span style="font-size:14px;font-weight:600;">Product Feedback Notebook</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;padding-right:12px;">
+      <span style="font-size:13px;color:#616161;margin-right:6px;">0 members</span>
+      <button style="background:#242424;color:#fff;border:none;border-radius:5px;height:30px;padding:0 16px;font-size:13px;font-weight:600;">Share</button>
+      <button title="Collaborate" style="width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.2"/><path d="M15 19a4 4 0 0 1 6.5-3.1"/></svg>
+      </button>
+      <button style="background:transparent;border:1px solid #e0e0e0;border-radius:6px;height:32px;padding:0 12px;font-size:13px;font-weight:600;color:#242424;display:flex;align-items:center;gap:6px;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        New notebook
+      </button>
+
+      <!-- ★ MEGAPHONE TRIGGER (What's New) -->
+      <button id="wn-mega" title="What's new" aria-haspopup="dialog" style="position:relative;width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <span class="wn-mega-ico" aria-hidden="true"></span>
+        <span id="wn-dot" style="position:absolute;top:3px;right:3px;width:8px;height:8px;border-radius:50%;background:#1B365D;border:1.5px solid #fff;"></span>
+      </button>
+
+      <button title="More" style="width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#424242"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ BODY ══ -->
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <!-- icon rail -->
+    <nav style="flex:0 0 48px;display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:10px;border-right:1px solid #efefef;background:#fafafa;">
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;background:#ececec;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 11.5a8 8 0 1 0-3.2 6.4L21 19l-1.1-4A8 8 0 0 0 20 11.5Z"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1Z"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h5v16H5zM14 4h5v16h-5z"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3"/></svg></div>
+      <div style="width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l2 6-2 12-2-12 2-6Z"/></svg></div>
+    </nav>
+
+    <!-- section nav -->
+    <aside style="flex:0 0 258px;padding:14px 12px;border-right:1px solid #efefef;background:#fff;overflow-y:auto;">
+      <div style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;background:#f0f0f0;border-left:2px solid #242424;font-size:14px;font-weight:600;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#242424" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Overview
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1Z"/></svg>Create
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>Reference
+      </div>
+
+      <div style="height:1px;background:#efefef;margin:14px 8px;"></div>
+
+      <div style="font-size:12px;color:#8a8a8a;font-weight:600;padding:0 12px 8px;">Created content</div>
+      <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#d24726;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">P</span>Untitled</div>
+      <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#d24726;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">P</span>Untitled</div>
+
+      <div style="height:14px;"></div>
+      <div style="font-size:12px;color:#8a8a8a;font-weight:600;padding:0 12px 8px;">References</div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#5b5fc7;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">T</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Weekly 1:1 with Priya — transcript</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Customer Interview 01 — Transcript</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Customer Interview 02 — Transcript</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Product Brief — Draft</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#217346;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">X</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Q3 Survey Results</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Research Summary — Themes</span></div>
+        <div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;"><span style="width:16px;height:16px;border-radius:3px;background:#2b579a;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;">W</span><span style="min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Roadmap Planning Notes</span></div>
+      </div>
+    </aside>
+
+    <!-- center canvas -->
+    <main style="flex:1;overflow-y:auto;min-width:0;background:#fff;">
+      <div style="max-width:960px;margin:0 auto;padding:22px 40px 80px;">
+        <div style="font-size:15px;font-weight:600;">Overview</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a8a8a;margin-top:2px;">June 9, 2026
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.8"><path d="M20 11a8 8 0 1 0-.5 4M20 5v6h-6"/></svg>
+        </div>
+        <div style="height:1px;background:#efefef;margin:16px 0 24px;"></div>
+
+        <div style="display:flex;gap:52px;flex-wrap:wrap;">
+          <section style="flex:1 1 320px;min-width:280px;max-width:420px;">
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:10px;">Summary</div>
+            <h1 style="font-size:26px;line-height:1.2;font-weight:700;margin:0 0 18px;letter-spacing:-.01em;">Customer Feedback Themes and Next Steps</h1>
+            <p style="font-size:15px;line-height:1.7;color:#333;margin:0;">This notebook consolidates customer interviews, survey results, and internal notes into a single view of what people find valuable and where they get stuck. It groups the feedback into recurring themes, highlights the gaps worth acting on, and proposes the next steps the team should take this quarter. <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;vertical-align:middle;">1</span></p>
+            <div style="display:flex;gap:16px;margin-top:20px;color:#8a8a8a;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v3h5a2 2 0 0 1 2 2.4l-1.5 6A2 2 0 0 1 16.5 20H7"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="transform:rotate(180deg);"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v3h5a2 2 0 0 1 2 2.4l-1.5 6A2 2 0 0 1 16.5 20H7"/></svg>
+            </div>
+          </section>
+
+          <section style="flex:1 1 420px;min-width:340px;">
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:12px;">Quick Create</div>
+            <div style="display:flex;gap:14px;margin-bottom:14px;">
+              <div style="flex:1;border:1px solid #ececec;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="width:20px;height:20px;border-radius:4px;background:#d24726;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">P</span><span style="font-size:13px;color:#616161;">Presentation</span></div>
+                <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Quick presentation</div>
+                <div style="font-size:12px;color:#8a8a8a;line-height:1.5;">Select to turn your notebook content into an editable presentation.</div>
+              </div>
+              <div style="flex:1;border:1px solid #ececec;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="width:20px;height:20px;border-radius:4px;background:#2b579a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">W</span><span style="font-size:13px;color:#616161;">Document</span></div>
+                <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Quick document</div>
+                <div style="font-size:12px;color:#8a8a8a;line-height:1.5;">Select to create an editable document using all the content in your notebook.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#fbe9d2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b8791d" stroke-width="1.7"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 0 2 2h1v-4H6a2 2 0 0 0-2 2Zm16 0a2 2 0 0 1-2 2h-1v-4h1a2 2 0 0 1 2 2Z"/></svg></span>Audio overview</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e8;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f8a70" stroke-width="1.7"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9"/></svg></span>Mind map</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#e6e1f5;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.7"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/><path d="M9 12h6M9 16h4"/></svg></span>Study guide</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#f8dfee;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b83e8e" stroke-width="1.7"><path d="M5 20V9M12 20V4M19 20v-7"/></svg></span>Infographic</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#217346" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></span>Spreadsheet</div>
+            </div>
+
+            <div style="height:1px;background:#efefef;margin:30px 0 24px;"></div>
+
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:6px;">Key Insights</div>
+            <h2 style="font-size:23px;line-height:1.25;font-weight:700;margin:0 0 20px;letter-spacing:-.01em;">What Customers Value, and Where They Stall</h2>
+
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 10px;">Setup Is the Biggest Drop-off</h3>
+            <ul style="margin:0 0 22px;padding-left:20px;font-size:14px;line-height:1.7;color:#333;">
+              <li style="margin-bottom:8px;">Most interviewees described the first-run setup as the hardest part of getting started. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+              <li>Once past setup, weekly usage climbs sharply and stays steady across the cohort. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+            </ul>
+
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 10px;">Sharing Drives Repeat Use</h3>
+            <ul style="margin:0 0 22px;padding-left:20px;font-size:14px;line-height:1.7;color:#333;">
+              <li style="margin-bottom:8px;">Teams that shared a workspace returned roughly twice as often as solo users. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+              <li>Privacy of individual chats was raised repeatedly as a precondition for sharing. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+            </ul>
+
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 10px;">Trust Depends on Traceable Sources</h3>
+            <ul style="margin:0 0 20px;padding-left:20px;font-size:14px;line-height:1.7;color:#333;">
+              <li style="margin-bottom:8px;">Users want to jump from an answer straight to the passage it came from before acting on it. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+              <li>Verification speed, not answer length, was the strongest predictor of stated confidence. <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;">1</span></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- right chat rail -->
+    <aside style="flex:0 0 360px;border-left:1px solid #efefef;background:#fff;display:flex;flex-direction:column;min-width:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 18px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;">Chat <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a8a5a" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+        <div style="font-size:24px;font-weight:700;color:#242424;letter-spacing:-.01em;">Let's connect the dots</div>
+
+        <!-- one new feature surfaced in the rail; expands into the full card -->
+        <div class="ft-wrap">
+          <button id="ft-banner" class="ft-card" type="button" aria-haspopup="dialog">
+            <span class="ft-ico" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M9.5 14.5 14.5 9.5"/><path d="M13 7l1.5-1.5a3.5 3.5 0 0 1 5 5L18 12"/><path d="M11 17l-1.5 1.5a3.5 3.5 0 0 1-5-5L6 12"/></svg>
+            </span>
+            <span class="ft-txt">
+              <span class="ft-pill">New</span>
+              <span class="ft-nm">Pull from connectors like Confluence, PitchBook, S&amp;P Global, etc</span>
+            </span>
+          </button>
+          <button id="ft-dismiss" class="ft-dismiss" type="button">Dismiss</button>
+        </div>
+      </div>
+      <div style="padding:0 16px 18px;">
+        <div style="border:1px solid #e0e0e0;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+          <div style="font-size:14px;color:#9a9a9a;margin-bottom:22px;">Message Copilot</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;gap:12px;color:#616161;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;">Provide a detailed explanation of [topic] in this notebook</div>
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;">Draft an abstract with 5 citations listed from my References</div>
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;">Describe common themes in my notebook</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ══ EXPANDED FEATURE (from the banner) ══ -->
+  <div id="ft-scrim" class="ft-scrim"></div>
+  <div id="ft-modal" class="ft-modal" role="dialog" aria-label="Feature details" aria-modal="true">
+    <button id="ft-close" class="icon-btn" title="Close" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div id="ft-slot"></div>
+  </div>
+
+  <!-- ══ SCRIM ══ -->
+  <div id="wn-scrim" style="position:absolute;inset:0;background:rgba(24,24,24,.14);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:40;"></div>
+
+  <!-- ══ WHAT'S NEW PANEL ══ -->
+  <div id="wn-panel" role="dialog" aria-label="What's new" aria-modal="true" style="position:absolute;top:0;right:0;height:100%;width:400px;background:#fff;box-shadow:-10px 0 34px rgba(0,0,0,.13);transform:translateX(100%);transition:transform .25s cubic-bezier(.22,.75,.3,1);z-index:50;display:flex;flex-direction:column;">
+
+    <div style="display:flex;align-items:center;gap:10px;padding:20px 20px 12px;flex:0 0 auto;">
+      <h2 style="font-size:19px;font-weight:700;margin:0;letter-spacing:-.01em;">What's new</h2>
+      <span style="font-size:11px;font-weight:600;color:#616161;background:#f0f0f0;border-radius:5px;padding:3px 8px;">June 2026</span>
+      <div style="flex:1;"></div>
+      <button id="wn-close" title="Close" style="width:32px;height:32px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div id="wn-body" style="flex:1;overflow-y:auto;padding:0 10px 32px;display:flex;flex-direction:column;"></div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════ CARD LIBRARY ════════════════════════
+     All ten cards live here and are cloned into whichever screen needs them:
+     the four data-new="1" cards go to the What's new panel, the other six to
+     the new-notebook rail, and the connectors card also fills the banner modal. -->
+<template id="wn-cards">
+
+      <!-- ═══ CARD 1 — Select References ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="c1-dlg card-surface">
+              <div class="c1-ttl">Select References</div>
+              <div class="c1-search">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#b8b8b8" stroke-width="2.4"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+                <span style="font-size:7px;color:#b8b8b8;">Search</span>
+              </div>
+              <div class="c1-tabs">
+                <span class="c1-tab">Files</span>
+                <span class="c1-tab">Meetings</span>
+                <span class="c1-tab">Emails</span>
+              </div>
+              <div class="c1-list">
+                <!-- Files -->
+                <div class="c1-group">
+                  <div class="c1-row"><span class="c1-ico" style="background:#2b579a;">W</span><span style="min-width:0;"><span class="c1-nm">Customer Interview 01 — Transcript</span><span class="c1-sub">Opened by you 10 minutes ago</span></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#217346;">X</span><span style="min-width:0;"><span class="c1-nm">Q3 Survey Results.xlsx</span><span class="c1-sub">Opened by you an hour ago</span></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#d24726;">P</span><span style="min-width:0;"><span class="c1-nm">Product Brief — Draft.pptx</span><span class="c1-sub">Opened by you yesterday</span></span></div>
+                </div>
+                <!-- Meetings -->
+                <div class="c1-group">
+                  <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;">T</span><span style="min-width:0;"><span class="c1-nm">Weekly 1:1 with Priya</span><span class="c1-sub">Transcript · Jun 8, 30 min</span></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;">T</span><span style="min-width:0;"><span class="c1-nm">Research Sync</span><span class="c1-sub">Transcript · Jun 4, 45 min</span></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#5b5fc7;">T</span><span style="min-width:0;"><span class="c1-nm">Roadmap Review</span><span class="c1-sub">Transcript · Jun 2, 60 min</span></span></div>
+                </div>
+                <!-- Emails -->
+                <div class="c1-group">
+                  <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;">@</span><span style="min-width:0;"><span class="c1-nm">Re: Q3 survey results</span><span class="c1-sub">Priya Shah · Jun 9</span></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;">@</span><span style="min-width:0;"><span class="c1-nm">Feedback themes — recap</span><span class="c1-sub">Jordan Reyes · Jun 7</span></span></div>
+                  <div class="c1-row"><span class="c1-ico" style="background:#0f6cbd;">@</span><span style="min-width:0;"><span class="c1-nm">Interview scheduling</span><span class="c1-sub">Sam Okafor · Jun 5</span></span></div>
+                </div>
+              </div>
+              <div class="c1-foot"><span class="c1-btn">Add</span><span class="c1-btn ghost">Cancel</span></div>
+              <svg class="cursor c1-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+            </div>
+          </div>
+          <h3 class="wn-title">Pull in OneDrive files, Teams Meeting Transcripts, and Emails</h3>
+          <p class="wn-desc">Prep meeting agendas, get feedback on a draft, compare data across reports, get a cross-source to-do list, and more.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 2 — chat → page drag ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame">
+              <!-- left: the page -->
+              <div class="pane pane-doc">
+                <div class="pane-hd">
+                  <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#a0a0a0" stroke-width="2"><path d="M6 4h9l3 3v13H6z"/></svg>Page
+                </div>
+                <div class="tt" style="margin-bottom:5px;">Feedback notes</div>
+                <div class="tx" style="color:#6a6a6a;">Setup keeps coming up as the sticking point across every interview.</div>
+                <div class="c2-landed">“Setup is the biggest drop-off. Once past it, weekly usage climbs sharply.”</div>
+                <div class="c2-place" style="margin-top:4px;">Just start typing…</div>
+              </div>
+              <!-- right: the chat rail -->
+              <div class="pane pane-chat">
+                <div class="pane-hd">Chat</div>
+                <div class="c2-msg">
+                  Here's what the interviews show. <span class="c2-sel">Setup is the biggest drop-off. Once past it, weekly usage climbs sharply.</span> Sharing drives repeat use.
+                </div>
+              </div>
+              <!-- the dragged selection -->
+              <div class="c2-ghost">Setup is the biggest drop-off. Once past it, weekly usage climbs sharply.</div>
+              <svg class="cursor c2-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+            </div>
+          </div>
+          <h3 class="wn-title">Send Chat Responses to an Editable Page</h3>
+          <p class="wn-desc">Collect Copilot's answers onto a page and drag in images to save important information.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 3 — prompt → generating → templated doc ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame col">
+              <div class="c3-stage">
+                <div class="c3-gen">
+                  <span style="width:16px;height:16px;border-radius:3px;background:#2b579a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;flex:0 0 16px;">W</span>
+                  <span style="display:flex;flex-direction:column;gap:4px;">
+                    <span class="lbl">Still working on it…</span>
+                    <span class="c3-shimmer"></span>
+                  </span>
+                </div>
+                <div class="c3-doc">
+                  <div class="c3-band"><i></i><span>NORTHWIND TRADERS</span></div>
+                  <div class="c3-body">
+                    <div class="c3-h">Customer Feedback Summary</div>
+                    <div class="c3-sub">Q3 2026 · PRODUCT RESEARCH</div>
+                    <span class="ln" style="width:100%;"></span>
+                    <span class="ln" style="width:92%;"></span>
+                    <div class="c3-tbl"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                    <span class="ln" style="width:96%;"></span>
+                    <span class="ln" style="width:64%;margin-bottom:0;"></span>
+                  </div>
+                  <div class="c3-foot">NORTHWIND TRADERS — CONFIDENTIAL</div>
+                </div>
+              </div>
+              <div class="c3-composer">
+                <span class="c3-prompt">Draft a customer feedback summary from the interview transcripts</span>
+                <span class="c3-send">
+                  <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+          <h3 class="wn-title">Draft decks, docs, spreadsheets, and infographics</h3>
+          <p class="wn-desc">Turn notebook material into polished deliverables using specialized agents. Match your organization's templates.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 4 — Share popup ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="c4-dlg card-surface">
+              <div class="c4-ttl">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
+                Product Feedback Notebook
+              </div>
+              <div class="c4-row">
+                <div class="c4-input"><span class="c4-typed">Jordan Reye</span><span class="c4-caret"></span></div>
+                <span class="c4-invite">Invite</span>
+              </div>
+              <div class="c4-auto">
+                <span class="c4-av">JR</span>
+                <span>
+                  <span class="c4-nm">Jordan Reyes</span>
+                  <span class="c4-em">jordan.reyes@northwind.example</span>
+                </span>
+              </div>
+              <div class="c4-note">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#b0b0b0" stroke-width="2.2" style="flex:0 0 8px;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.6"/></svg>
+                <span>All notebook content and links are shared. Chats and audio overviews stay private.</span>
+              </div>
+              <div class="c4-mem">Members (0)</div>
+            </div>
+          </div>
+          <h3 class="wn-title">Create a Shared Workspace</h3>
+          <p class="wn-desc">Share a notebook with your team to co-create in real time, while each person's own chats stay private.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 5 — connectors  ★ NEW ═══ -->
+      <article class="wn-card is-new" data-new="1" data-key="connectors">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame col">
+              <div class="c5-canvas">
+                <div class="tt" style="margin-bottom:5px;">Market landscape</div>
+                <span class="ln" style="width:88%;"></span>
+                <span class="ln" style="width:72%;"></span>
+                <span class="ln" style="width:80%;"></span>
+              </div>
+              <div class="c5-composer">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#b5b5b5" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="c5-chip">Sources</span>
+                <span class="c5-plc">Message Copilot</span>
+              </div>
+              <div class="c5-fly">
+                <div class="c5-src">
+                  <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#c4c4c4" stroke-width="2.6" style="margin-right:4px;"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+                  Search sources
+                </div>
+                <div class="c5-row"><span class="c5-ico" style="background:#0f6cbd;">W</span><span class="c5-lb">Web</span><span class="c5-tg on"></span></div>
+                <div class="c5-row"><span class="c5-ico" style="background:#d24726;">M</span><span class="c5-lb">Microsoft 365</span><span class="c5-tg on"></span></div>
+                <div class="c5-row"><span class="c5-ico" style="background:#6b6bb0;">A</span><span class="c5-lb">Agents</span><span class="c5-tg on"></span></div>
+                <div class="c5-div"></div>
+                <div class="c5-row c5-conn"><span class="c5-ico" style="background:#2684ff;">C</span><span class="c5-lb">Confluence</span><span class="c5-tg on"></span></div>
+                <div class="c5-row c5-conn"><span class="c5-ico" style="background:#3b3b58;">P</span><span class="c5-lb">PitchBook</span><span class="c5-tg on"></span></div>
+                <div class="c5-row c5-conn"><span class="c5-ico" style="background:#c8102e;font-size:4.5px;">S&amp;P</span><span class="c5-lb">S&amp;P Global</span><span class="c5-tg c5-flip"></span></div>
+                <div class="c5-foot"><span>View all</span><a>Deselect all</a></div>
+              </div>
+            </div>
+          </div>
+          <span class="wn-badge">New</span>
+          <h3 class="wn-title">Pull from connectors like Confluence, PitchBook, S&amp;P Global, etc</h3>
+          <p class="wn-desc">Pull market data, info from research databases, and internal company documentation.</p>
+          <button class="wn-try">Try it</button>
+          <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 6 — suggested edits: the sentence visibly rewrites  ★ NEW ═══ -->
+      <article class="wn-card is-new" data-new="1">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame">
+              <div class="pane pane-doc">
+                <div class="pane-hd">
+                  <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#a0a0a0" stroke-width="2"><path d="M6 4h9l3 3v13H6z"/></svg>Page
+                </div>
+                <div class="c6-h">Customer Feedback Summary</div>
+                <p class="c6-p">We spoke to twelve customers this quarter about onboarding.</p>
+                <div class="c6-swap">
+                  <span class="c6-before">The setup process was found to be quite difficult by a majority of the users that we interviewed.</span>
+                  <span class="c6-after">Most users found setup difficult.</span>
+                </div>
+              </div>
+              <div class="pane pane-rail">
+                <div class="pane-hd">Suggested edits</div>
+                <div class="c6-sug">
+                  <span class="c6-tag">Clarity</span>
+                  <div class="c6-old">The setup process was found to be quite difficult by a majority of the users…</div>
+                  <div class="c6-new">Most users found setup difficult.</div>
+                  <span class="c6-apply">Apply</span>
+                </div>
+              </div>
+              <svg class="cursor c6-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+            </div>
+          </div>
+          <span class="wn-badge">New</span>
+          <h3 class="wn-title">Get professional, in-line suggestions</h3>
+          <p class="wn-desc">Copilot reviews a page for clarity and quality, then offers edits you apply in one click.</p>
+          <button class="wn-try">Try it</button>
+          <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 7 — deep citations  ★ NEW ═══ -->
+      <article class="wn-card is-new" data-new="1">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="frame">
+              <div class="pane pane-doc">
+                <div class="c7-src">
+                  <div class="pane-hd">
+                    <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#a0a0a0" stroke-width="2"><path d="M6 4h9l3 3v13H6z"/></svg>Customer Interview 01
+                  </div>
+                  <div class="c7-doc">
+                    …I'd been meaning to try it for weeks. <span class="c7-quote">Honestly, the setup took me almost an hour and I nearly gave up halfway through.</span> After that it was fine — I use it most days now.
+                  </div>
+                </div>
+              </div>
+              <div class="pane pane-chat">
+                <div class="pane-hd">Chat</div>
+                <div class="c7-ans">
+                  Setup is the biggest drop-off point for new users.<span class="c7-chip">1</span>
+                </div>
+              </div>
+              <svg class="cursor c7-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+            </div>
+          </div>
+          <span class="wn-badge">New</span>
+          <h3 class="wn-title">Verify Sources Faster</h3>
+          <p class="wn-desc">Get citations straight to the specific passage in a referenced file, so you can quickly verify copilot's output.</p>
+          <button class="wn-try">Try it</button>
+          <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 8 — best fit model  ★ NEW ═══ -->
+      <article class="wn-card is-new" data-new="1">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="c8-rail">
+              <div class="c8-hd">
+                <span>Chat</span>
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="c8-body">
+                <div class="c8-line">Setup is the biggest drop-off — most</div>
+                <div class="c8-line">interviewees called first-run the hardest</div>
+                <div class="c8-line">part, and usage climbs sharply after it.</div>
+                <div class="c8-bar">
+                  <span class="c8-btn">
+                    <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 11a8 8 0 1 0-.5 4M20 5v6h-6"/></svg>
+                    Try again
+                  </span>
+                  <span class="c8-btn act">Switch model</span>
+                </div>
+                <div class="c8-menu">
+                  <div class="c8-opt"><span class="ck"></span>Auto</div>
+                  <div class="c8-opt sel">
+                    <span class="ck"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"><path d="M5 12l4 4 10-10"/></svg></span>
+                    GPT 5.5 Thinking
+                  </div>
+                  <div class="c8-opt"><span class="ck"></span>Claude Opus 4.8</div>
+                </div>
+              </div>
+              <div class="c8-cmp">Message Copilot</div>
+              <svg class="cursor c8-cursor" viewBox="0 0 12 16" fill="none"><path d="M1 1l9.2 6.4-4 .7L4.5 13 1 1Z" fill="#242424" stroke="#fff" stroke-width="1"/></svg>
+            </div>
+          </div>
+          <span class="wn-badge">New</span>
+          <h3 class="wn-title">Use the Best Fit Model</h3>
+          <p class="wn-desc">Choose the model that best fits the task with OpenAI GPT 5.5 Thinking.</p>
+          <button class="wn-try">Try it</button>
+          <div class="wn-more">Read more <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%E2%80%99s-new-in-microsoft-365-copilot--june-2026/4529572" target="_blank" rel="noopener noreferrer">here</a></div>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 9 — mind map ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <svg class="c9-svg" viewBox="0 0 306 184" fill="none">
+              <path class="c9-edge c9-e1" d="M118 92 C 146 92, 152 54, 180 54"/>
+              <path class="c9-edge c9-e2" d="M118 92 C 148 92, 152 92, 182 92"/>
+              <path class="c9-edge c9-e3" d="M118 92 C 146 92, 152 130, 180 130"/>
+              <path class="c9-subedge" d="M236 54 C 252 54, 254 34, 270 34"/>
+              <path class="c9-subedge" d="M236 54 C 252 54, 254 74, 270 74"/>
+
+              <g class="c9-node c9-n0">
+                <rect x="36" y="76" width="82" height="32" rx="8" fill="#242424"/>
+                <text class="c9-lbl mid" x="77" y="96" text-anchor="middle">Customer feedback</text>
+              </g>
+
+              <g class="c9-node c9-n1">
+                <rect x="180" y="42" width="56" height="24" rx="7" fill="#fff" stroke="#dedede"/>
+                <text class="c9-lbl" x="208" y="57" text-anchor="middle">Setup</text>
+              </g>
+              <g class="c9-node c9-n2">
+                <rect x="182" y="80" width="56" height="24" rx="7" fill="#fff" stroke="#dedede"/>
+                <text class="c9-lbl" x="210" y="95" text-anchor="middle">Sharing</text>
+              </g>
+              <g class="c9-node c9-n3">
+                <rect x="180" y="118" width="56" height="24" rx="7" fill="#fff" stroke="#dedede"/>
+                <text class="c9-lbl" x="208" y="133" text-anchor="middle">Trust</text>
+              </g>
+
+              <circle class="c9-ring" cx="208" cy="54" r="20" stroke="#242424" stroke-width="1" fill="none"/>
+
+              <g class="c9-sub c9-s1">
+                <rect x="252" y="25" width="42" height="18" rx="6" fill="#fff" stroke="#e4e4e4"/>
+                <text class="c9-lbl" x="273" y="37" text-anchor="middle" style="font-size:5.5px;">Onboarding</text>
+              </g>
+              <g class="c9-sub c9-s2">
+                <rect x="252" y="65" width="42" height="18" rx="6" fill="#fff" stroke="#e4e4e4"/>
+                <text class="c9-lbl" x="273" y="77" text-anchor="middle" style="font-size:5.5px;">First run</text>
+              </g>
+            </svg>
+          </div>
+          <h3 class="wn-title">Generate an interactive mind map</h3>
+          <p class="wn-desc">Map themes across a notebook, visualize relationships, spot gaps, and click into any node to go deeper.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+      <!-- ═══ CARD 10 — audio overview ═══ -->
+      <article class="wn-card">
+        <div class="wn-inner">
+          <div class="mock">
+            <div class="c10-dlg card-surface">
+              <div class="c10-ttl">
+                Customize
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </div>
+              <div class="c10-grid">
+                <div>
+                  <div class="c10-lb">Language</div>
+                  <div class="c10-sel">English (en)
+                    <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                  </div>
+                </div>
+                <div>
+                  <div class="c10-lb">Voice</div>
+                  <div class="c10-sel">Ava / Steffan
+                    <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#a5a5a5" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                  </div>
+                </div>
+                <div>
+                  <div class="c10-lb">Format</div>
+                  <div class="c10-chips">
+                    <span class="c10-chip">Narration</span>
+                    <span class="c10-chip pick c10-p1">Dialog</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="c10-lb">Style</div>
+                  <div class="c10-chips">
+                    <span class="c10-chip">Professional</span>
+                    <span class="c10-chip pick c10-p2">Casual</span>
+                  </div>
+                </div>
+                <div style="grid-column:1 / -1;">
+                  <div class="c10-lb">Duration</div>
+                  <div class="c10-chips">
+                    <span class="c10-chip">Shorter</span>
+                    <span class="c10-chip pick c10-p3">Medium</span>
+                    <span class="c10-chip">Longer</span>
+                  </div>
+                </div>
+              </div>
+              <div class="c10-note">For example: “Focus on research insights”</div>
+              <div class="c10-foot">
+                <span class="c10-eq"><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="c10-gen">Generate audio</span>
+              </div>
+            </div>
+          </div>
+          <h3 class="wn-title">Create a Customized Audio Overview</h3>
+          <p class="wn-desc">Turn your notebook into a podcast-style rundown to listen while driving or walking.</p>
+          <button class="wn-try">Try it</button>
+        </div>
+      </article>
+
+</template>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'cpnb_wn_seen_v1';
+
+  /* ── Card library ──
+     Every card is authored once in #wn-cards and cloned into the screens that
+     need it, so the panel and the new-notebook rail can never drift apart. */
+  const lib = Array.from($('wn-cards').content.querySelectorAll('.wn-card'));
+  const isNew = (c) => c.dataset.new === '1';
+
+  function mount(container, filter) {
+    const nodes = lib.filter(filter).map((c) => c.cloneNode(true));
+    nodes.forEach((n) => container.appendChild(n));
+    return nodes;
+  }
+
+  /* ── Reveal cards as they scroll into their own scroll container ──
+     The IntersectionObserver does the work; the rect check runs alongside it so
+     a card can never be stranded at opacity:0 if the observer is slow. Returns
+     a start() to call once the container is actually on screen — rects are all
+     zero while a screen is display:none. */
+  function wire(root, cards) {
+    const reveal = () => {
+      const rootRect = root.getBoundingClientRect();
+      cards.forEach((card) => {
+        if (card.classList.contains('in-view')) return;
+        const r = card.getBoundingClientRect();
+        const shown = Math.min(r.bottom, rootRect.bottom) - Math.max(r.top, rootRect.top);
+        if (r.height && shown / r.height >= 0.35) card.classList.add('in-view');
+      });
+    };
+    cards.forEach((card) => card.addEventListener('mouseenter', () => replay(card)));
+
+    let started = false;
+    return () => {
+      if (started) return;
+      started = true;
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((en) => { if (en.isIntersecting) en.target.classList.add('in-view'); });
+        }, { root, threshold: 0.35 });
+        cards.forEach((c) => io.observe(c));
+      }
+      root.addEventListener('scroll', reveal, { passive: true });
+      reveal();
+    };
+  }
+
+  // restart a card's animations from the top
+  function replay(card) {
+    card.classList.remove('in-view');
+    void card.offsetWidth;
+    card.classList.add('in-view');
+  }
+
+  const startPanel = wire($('wn-body'), mount($('wn-body'), isNew));                 // 4 new features
+  const startTips = wire($('tips-body'), mount($('tips-body'), (c) => !isNew(c)));   // 6 existing ones
+
+  /* ── Screens ── */
+  const screens = { home: $('screen-home'), new: $('screen-new'), nb: $('screen-nb') };
+  const show = (name) => {
+    Object.keys(screens).forEach((k) => screens[k].classList.toggle('on', k === name));
+    if (name === 'new') startTips();
+  };
+
+  $('go-new').addEventListener('click', () => show('new'));
+  $('go-nb').addEventListener('click', () => show('nb'));
+  $('new-back').addEventListener('click', () => show('home'));
+  $('nb-back').addEventListener('click', () => show('home'));
+
+  // the drop zone accepts nothing — it only has to look alive
+  const drop = $('nn-drop');
+  ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => {
+    e.preventDefault();
+    drop.classList.add('over');
+  }));
+  ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => {
+    e.preventDefault();
+    drop.classList.remove('over');
+  }));
+
+  /* ── What's new panel ── */
+  const dot = $('wn-dot'), panel = $('wn-panel'), scrim = $('wn-scrim');
+  const mega = $('wn-mega');
+
+  let seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  if (seen && dot) dot.style.display = 'none';
+
+  const openPanel = () => {
+    panel.style.transform = 'translateX(0)';
+    scrim.style.opacity = '1';
+    scrim.style.pointerEvents = 'auto';
+    if (dot) dot.style.display = 'none';
+    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    startPanel();
+  };
+  const closePanel = () => {
+    panel.style.transform = 'translateX(100%)';
+    scrim.style.opacity = '0';
+    scrim.style.pointerEvents = 'none';
+    if (mega) mega.focus();
+  };
+
+  mega.addEventListener('click', openPanel);
+  $('wn-close').addEventListener('click', closePanel);
+  scrim.addEventListener('click', closePanel);
+
+  /* ── The banner's feature, blown up ── */
+  const ftScrim = $('ft-scrim'), ftModal = $('ft-modal'), ftBanner = $('ft-banner');
+  const featured = lib.find((c) => c.dataset.key === 'connectors');
+  let big = null;
+
+  const openFeature = () => {
+    if (!big) {
+      big = featured.cloneNode(true);
+      big.classList.add('lg');
+      big.addEventListener('mouseenter', () => replay(big));
+      inert(big);
+      $('ft-slot').appendChild(big);
+    }
+    ftScrim.classList.add('on');
+    ftModal.classList.add('on');
+    replay(big);
+  };
+  const closeFeature = () => {
+    ftScrim.classList.remove('on');
+    ftModal.classList.remove('on');
+    ftBanner.focus();
+  };
+
+  ftBanner.addEventListener('click', openFeature);
+  ftScrim.addEventListener('click', closeFeature);
+
+  // dismissing is per-session on purpose: a reload brings the banner back so the
+  // next run-through of the prototype starts from the same place
+  $('ft-dismiss').addEventListener('click', () => {
+    const wrap = document.querySelector('.ft-wrap');
+    wrap.style.transition = 'opacity .2s ease';
+    wrap.style.opacity = '0';
+    setTimeout(() => { wrap.style.display = 'none'; }, 200);
+  });
+  $('ft-close').addEventListener('click', closeFeature);
+
+  // Escape unwinds the topmost layer first
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (ftModal.classList.contains('on')) closeFeature();
+    else closePanel();
+  });
+
+  // "Try it" is a prototype affordance — it must not navigate
+  function inert(root) {
+    root.querySelectorAll('.wn-try').forEach((b) => b.addEventListener('click', (e) => e.preventDefault()));
+  }
+  inert(document);
+
+  show('home');
+})();
+</script>
+</body>
+</html>
