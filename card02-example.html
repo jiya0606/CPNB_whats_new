@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copilot Notebooks — Send chat responses to a page</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{font-family:"Segoe UI Variable Display","Segoe UI Variable","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;color:#242424;background:#fff;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow:hidden;}
+  a{color:#0f6cbd;text-decoration:none;} a:hover{text-decoration:underline;}
+  button{font-family:inherit;cursor:pointer;}
+
+  .icon-btn{width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;}
+  .icon-btn:hover{background:#f0f0f0;}
+
+  #app{height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:#fff;}
+
+  /* ══ command bar ══ */
+  .cmd{display:flex;align-items:center;height:48px;flex:0 0 48px;border-bottom:1px solid #efefef;background:#fff;}
+  .cmd .primary{background:#242424;color:#fff;border:none;border-radius:5px;height:30px;padding:0 16px;font-size:13px;font-weight:600;}
+  .cmd .ghost{background:transparent;border:1px solid #e0e0e0;border-radius:6px;height:32px;padding:0 12px;font-size:13px;font-weight:600;color:#242424;display:flex;align-items:center;gap:6px;}
+  .cmd .ghost:hover{background:#f5f5f5;}
+
+  /* ══ body ══ */
+  .body{flex:1;display:flex;min-height:0;}
+
+  /* left section nav */
+  .nav{flex:0 0 258px;padding:14px 12px;border-right:1px solid #efefef;background:#fff;overflow-y:auto;}
+  .nav .row{display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;}
+  .nav .row:hover{background:#f5f5f5;}
+  .nav .row.active{background:#f0f0f0;border-left:2px solid #242424;font-weight:600;color:#242424;}
+  .nav .grp{font-size:12px;color:#8a8a8a;font-weight:600;padding:0 12px 8px;}
+  .nav .doc{display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;}
+  .nav .doc.active{background:#eef2f8;font-weight:600;color:#1B365D;}
+  .badge{width:16px;height:16px;border-radius:3px;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;}
+  .clip{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ══ center: the editable page ══ */
+  .page-col{flex:1;display:flex;flex-direction:column;min-width:0;background:#fff;border-right:1px solid #efefef;}
+  .page-hd{display:flex;align-items:center;gap:10px;height:46px;padding:0 20px;flex:0 0 46px;}
+  .page-hd .t{font-size:14px;font-weight:600;color:#242424;}
+  .page-scroll{flex:1;overflow-y:auto;}
+  .page{max-width:720px;margin:0 auto;padding:14px 44px 120px;min-height:100%;}
+  .page-ph{color:#a0a0a0;font-size:16px;padding-top:6px;}
+
+  /* drop-zone affordance */
+  .page-col.drop-hot .page{outline:2px dashed #1B365D;outline-offset:-14px;border-radius:12px;background:#f7f9fd;}
+  .drop-hint{position:absolute;left:50%;transform:translateX(-50%);top:70px;background:#1B365D;color:#fff;font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;box-shadow:0 4px 14px rgba(27,54,93,.3);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:6;white-space:nowrap;}
+  .page-col.drop-hot .drop-hint{opacity:1;}
+
+  /* content the user drops onto the page */
+  .dropped{animation:landin .35s cubic-bezier(.2,.8,.3,1);}
+  @keyframes landin{from{opacity:0;transform:translateY(-6px) scale(.98);}to{opacity:1;transform:none;}}
+  .p-text{font-size:15px;line-height:1.7;color:#242424;margin:0 0 18px;}
+  .p-text .src{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;vertical-align:middle;margin-left:2px;}
+  .p-figure{border:1px solid #ececec;border-radius:10px;padding:16px 18px 12px;margin:0 0 18px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+
+  /* ══ right chat rail ══ */
+  .chat{flex:0 0 372px;background:#fff;display:flex;flex-direction:column;min-width:0;}
+  .chat-hd{display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 18px;flex:0 0 48px;border-bottom:1px solid #f4f4f4;}
+  .chat-scroll{flex:1;overflow-y:auto;padding:18px 16px 8px;display:flex;flex-direction:column;gap:14px;}
+  .u-msg{align-self:flex-end;max-width:82%;background:#eef2f8;color:#1b1b1b;font-size:14px;line-height:1.5;padding:9px 13px;border-radius:14px 14px 4px 14px;}
+  .a-row{display:flex;gap:10px;align-items:flex-start;}
+  .a-ico{flex:0 0 24px;width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#1B365D,#3a6ea5);display:flex;align-items:center;justify-content:center;margin-top:2px;}
+  .a-body{min-width:0;flex:1;}
+
+  /* thinking */
+  .think{display:flex;align-items:center;gap:8px;color:#8a8a8a;font-size:13px;}
+  .think .dots{display:inline-flex;gap:4px;}
+  .think .dots i{width:6px;height:6px;border-radius:50%;background:#b6b6b6;animation:blink 1.2s infinite ease-in-out;}
+  .think .dots i:nth-child(2){animation-delay:.2s;} .think .dots i:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.3;transform:translateY(0);}40%{opacity:1;transform:translateY(-2px);}}
+
+  .a-prose{font-size:14px;line-height:1.65;color:#242424;}
+  .a-prose p{margin:0 0 10px;}
+  .a-prose .src{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;vertical-align:middle;}
+
+  /* the draggable key sentence — a faint dotted underline flags it as special,
+     and the demo sweeps a real "selection" highlight across it */
+  .drag-text{border-radius:4px;padding:1px 3px;cursor:grab;box-decoration-break:clone;-webkit-box-decoration-break:clone;
+    text-decoration:underline dotted #a9c1ea;text-underline-offset:3px;
+    background:linear-gradient(#cfe0fb,#cfe0fb) left center/0% 100% no-repeat;}
+  .drag-text.sel{background-size:100% 100%;transition:background-size .7s ease;text-decoration-color:transparent;}
+  .drag-text:hover{background-size:100% 100%;transition:background-size .2s ease;}
+  .drag-text:active{cursor:grabbing;}
+
+  /* the draggable visual (an "image" chunk) */
+  .viz{margin-top:12px;border:1px solid #e3e8f0;border-radius:10px;background:#fff;padding:14px 14px 12px;cursor:grab;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:box-shadow .15s ease,transform .15s ease;}
+  .viz:hover{box-shadow:0 4px 16px rgba(27,54,93,.14);transform:translateY(-1px);}
+  .viz:active{cursor:grabbing;}
+  .viz-cap{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#1B365D;margin-bottom:12px;}
+  .bar{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12px;color:#333;}
+  .bar:last-child{margin-bottom:0;}
+  .bar .lab{flex:0 0 96px;color:#555;}
+  .bar .track{flex:1;height:14px;border-radius:4px;background:#eef0f4;overflow:hidden;}
+  .bar .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#1B365D,#3a6ea5);width:0;transition:width .7s cubic-bezier(.2,.8,.3,1);}
+  .bar .pct{flex:0 0 34px;text-align:right;color:#1B365D;font-weight:600;font-variant-numeric:tabular-nums;}
+  .viz-src{display:flex;align-items:center;gap:6px;font-size:11px;color:#8a8a8a;margin-top:11px;}
+
+  /* composer */
+  .composer{padding:0 16px 16px;flex:0 0 auto;}
+  .composer .box{border:1px solid #e0e0e0;border-radius:14px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  .page-chip{display:inline-flex;align-items:center;gap:6px;background:#f4f6fa;border:1px solid #e6ebf3;border-radius:7px;padding:4px 9px;font-size:12px;color:#3a3a3a;margin-bottom:10px;}
+  .composer .ph{font-size:14px;color:#9a9a9a;}
+  .composer .tools{display:flex;align-items:center;justify-content:space-between;margin-top:14px;color:#616161;}
+  .disclaimer{text-align:center;font-size:11px;color:#a8a8a8;margin-top:8px;}
+
+  /* ══ coach-mark demo cursor + ghost ══ */
+  .demo-cursor{position:fixed;z-index:60;width:22px;height:22px;left:0;top:0;pointer-events:none;opacity:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35));}
+  .demo-ghost{position:fixed;z-index:59;left:0;top:0;pointer-events:none;opacity:0;background:#fff;border:1px solid #cdd7e6;border-radius:8px;box-shadow:0 12px 30px rgba(27,54,93,.3);font-size:12px;color:#1b1b1b;line-height:1.45;padding:9px 11px;max-width:210px;transform-origin:top left;}
+
+  /* the greyed "this will land here" preview dropped onto the page during the demo */
+  .ghost-preview{opacity:.5;filter:grayscale(.35);position:relative;animation:previewIn .3s ease;}
+  .ghost-preview::after{content:"";position:absolute;inset:-8px -10px;border:1.5px dashed #b7c4d8;border-radius:10px;pointer-events:none;}
+  @keyframes previewIn{from{opacity:0;transform:translateY(-6px);}to{opacity:.5;transform:none;}}
+  .ghost-preview.p-text{font-size:15px;line-height:1.7;color:#3a3a3a;margin:0 0 18px;}
+
+  /* prototype-only control */
+  .proto{position:fixed;left:16px;bottom:14px;z-index:80;display:flex;align-items:center;gap:8px;background:#111;color:#fff;border:none;border-radius:20px;height:32px;padding:0 14px;font-size:12px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:.9;}
+  .proto:hover{opacity:1;}
+  .proto small{opacity:.6;font-weight:500;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════ COMMAND BAR ══════════ -->
+  <header class="cmd">
+    <div style="width:48px;display:flex;justify-content:center;flex:0 0 48px;">
+      <button class="icon-btn" title="Back to notebooks" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding-left:6px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      <span style="font-size:14px;font-weight:600;">Customer Feedback Themes and Next Steps</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;padding-right:12px;">
+      <span style="font-size:13px;color:#616161;margin-right:6px;">0 members</span>
+      <button class="primary" type="button">Share</button>
+      <button class="icon-btn" title="Collaborate" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.2"/><path d="M15 19a4 4 0 0 1 6.5-3.1"/></svg>
+      </button>
+      <button class="ghost" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>New notebook
+      </button>
+      <button class="icon-btn" title="What's new" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#424242" stroke-width="1.6"><path d="M3 11l14-6v14L3 13v-2Z"/><path d="M7 12v5a2 2 0 0 0 4 0"/></svg>
+      </button>
+      <button class="icon-btn" title="More" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#424242"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════ BODY ══════════ -->
+  <div class="body">
+
+    <!-- left section nav -->
+    <aside class="nav">
+      <div class="row active">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#242424" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Overview
+      </div>
+      <div class="row">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1Z"/></svg>Create
+      </div>
+      <div class="row">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>Reference
+      </div>
+
+      <div style="height:1px;background:#efefef;margin:14px 8px;"></div>
+
+      <div class="grp">Created content</div>
+      <!-- the new blank page we just opened -->
+      <div class="doc active"><span class="badge" style="background:#d24726;">P</span>Untitled</div>
+
+      <div style="height:14px;"></div>
+      <div class="grp">References</div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="doc"><span class="badge" style="background:#5b5fc7;">T</span><span class="clip">Weekly 1:1 with Priya — transcript</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Customer Interview 01 — Transcript</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Customer Interview 02 — Transcript</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Product Brief — Draft</span></div>
+        <div class="doc"><span class="badge" style="background:#217346;">X</span><span class="clip">Q3 Survey Results</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Research Summary — Themes</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Roadmap Planning Notes</span></div>
+      </div>
+    </aside>
+
+    <!-- center: the editable page -->
+    <section class="page-col" id="page-col">
+      <div class="page-hd">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a0a0a0" stroke-width="1.7"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+        <span class="t">Untitled</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4a72b8" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/></svg>
+      </div>
+      <div class="drop-hint">Drop to add to your page</div>
+      <div class="page-scroll">
+        <div class="page" id="page">
+          <div class="page-ph" id="page-ph">Just start typing…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- right: chat rail -->
+    <aside class="chat">
+      <div class="chat-hd">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;">Chat
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a8a5a" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+
+      <div class="chat-scroll" id="chat-scroll"><!-- messages injected here --></div>
+
+      <!-- composer -->
+      <div class="composer">
+        <div class="box">
+          <span class="page-chip">
+            <span class="badge" style="background:#d24726;width:14px;height:14px;font-size:8px;">P</span>Untitled.page
+          </span>
+          <div class="ph">Message Copilot</div>
+          <div class="tools">
+            <div style="display:flex;gap:12px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg>
+          </div>
+        </div>
+        <div class="disclaimer">AI-generated content may be incorrect</div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- coach-mark demo layer -->
+  <svg class="demo-cursor" id="demo-cursor" viewBox="0 0 24 24" fill="#111" stroke="#fff" stroke-width="1.4"><path d="M4 3l7.5 16.5 2.2-6.6 6.6-2.2L4 3z"/></svg>
+  <div class="demo-ghost" id="demo-ghost"></div>
+
+</div>
+
+<button class="proto" id="replay" type="button" title="Prototype control — remove before user testing">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-.5 4"/><path d="M20 4v6h-6"/></svg>
+  Replay demo <small>· prototype only</small>
+</button>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const chat   = $('chat-scroll');
+  const page   = $('page');
+  const pagePh = $('page-ph');
+  const pageCol= $('page-col');
+  const cursor = $('demo-cursor');
+  const ghost  = $('demo-ghost');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── the tailored, short-but-useful exchange for THIS notebook ──
+  const QUERY = "Where do new users get stuck?";
+  const KEY_SENTENCE = "Setup is the #1 drop-off — 7 of 9 interviewees called first-run setup the hardest part, but weekly usage climbs and holds once they're past it.";
+
+  let timers = [];
+  const after = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const clearAll = () => { timers.forEach(clearTimeout); timers = []; };
+
+  // ═══════════════ the run ═══════════════
+  function run(){
+    clearAll();
+    stopLoop();
+    chat.innerHTML = '';
+    page.innerHTML = '<div class="page-ph" id="page-ph">Just start typing…</div>';
+    hideDemo();
+
+    // 1 — the query is auto-sent as the user opens the notebook
+    after(350, () => {
+      const u = el('div','u-msg'); u.textContent = QUERY;
+      chat.appendChild(u); scrollChat();
+    });
+
+    // 2 — Copilot thinks for ~1.6s
+    after(750, () => {
+      const row = el('div','a-row'); row.id = 'think-row';
+      row.innerHTML = aIcon() +
+        '<div class="a-body"><div class="think">Working through your interviews'+
+        '<span class="dots"><i></i><i></i><i></i></span></div></div>';
+      chat.appendChild(row); scrollChat();
+    });
+
+    // 3 — the answer replaces the thinking state
+    after(2350, renderAnswer);
+
+    // 4 — once it settles, loop the drag demo until the user does it themselves
+    after(3300, startLoop);
+  }
+
+  function renderAnswer(){
+    const row = $('think-row'); if(!row) return;
+    row.querySelector('.a-body').innerHTML =
+      '<div class="a-prose">'+
+        '<p><span class="drag-text" id="drag-text" draggable="true">'+ KEY_SENTENCE +
+          '</span> <span class="src">1</span></p>'+
+        '<p style="color:#616161;">Sharing a workspace and traceable sources came next — but setup is where you lose people first.</p>'+
+      '</div>'+
+      viz() ;
+    scrollChat();
+    // animate the bars in
+    after(120, () => {
+      row.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w);
+    });
+    wireDraggables();
+  }
+
+  // the draggable visual (an "image" chunk of the answer)
+  function viz(){
+    return ''+
+    '<div class="viz" id="viz" draggable="true">'+
+      '<div class="viz-cap">Activation drop-off</div>'+
+      row('Signed up',  '100', 100)+
+      row('Finished setup','55', 55)+
+      row('Weekly active','48', 48)+
+      '<div class="viz-src">'+
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>'+
+        'From Q3 Survey Results · 9 interviews</div>'+
+    '</div>';
+    function row(lab,pct,w){
+      return '<div class="bar"><span class="lab">'+lab+'</span>'+
+        '<span class="track"><span class="fill" data-w="'+w+'%"></span></span>'+
+        '<span class="pct">'+pct+'%</span></div>';
+    }
+  }
+
+  // ═══════════════ real drag-and-drop ═══════════════
+  let dragKind = null;
+
+  function wireDraggables(){
+    const dText = $('drag-text');
+    const dViz  = $('viz');
+
+    dText.addEventListener('dragstart', e => {
+      stopLoop();                       // the user took over — stop coaching
+      dragKind = 'text';
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('text/plain', KEY_SENTENCE);
+    });
+    dText.addEventListener('dragend', () => dragKind = null);
+
+    dViz.addEventListener('dragstart', e => {
+      stopLoop();
+      dragKind = 'viz';
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('text/plain', 'Activation drop-off — Signed up 100%, Finished setup 55%, Weekly active 48%');
+      // a slim drag image so the cursor isn't hidden by the whole card
+      try{ e.dataTransfer.setDragImage(dViz, 20, 20); }catch(_){}
+    });
+    dViz.addEventListener('dragend', () => dragKind = null);
+  }
+
+  pageCol.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='copy'; pageCol.classList.add('drop-hot'); });
+  pageCol.addEventListener('dragleave', e => { if(!pageCol.contains(e.relatedTarget)) pageCol.classList.remove('drop-hot'); });
+  pageCol.addEventListener('drop', e => {
+    e.preventDefault();
+    pageCol.classList.remove('drop-hot');
+    stopLoop();
+    clearPreview(true);    // drop any greyed demo preview before landing the real thing
+    const kind = dragKind || (e.dataTransfer.getData('text/plain') ? 'text' : null);
+    if(kind === 'viz') dropViz();
+    else if(kind === 'text') dropText(e.dataTransfer.getData('text/plain') || KEY_SENTENCE);
+    dragKind = null;
+  });
+
+  function clearPh(){ const ph = $('page-ph'); if(ph) ph.remove(); }
+
+  function dropText(t){
+    clearPh();
+    const p = el('p','p-text dropped');
+    p.innerHTML = escapeHtml(t) + ' <span class="src">1</span>';
+    page.appendChild(p);
+  }
+  function dropViz(){
+    clearPh();
+    const fig = el('div','p-figure dropped');
+    fig.innerHTML = figureHTML();
+    page.appendChild(fig);
+    after(60, () => fig.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w));
+  }
+
+  // shared markup for the chart, used by the real drop and the greyed preview
+  function figureHTML(){
+    const bar = (lab,pct,w) =>
+      '<div class="bar"><span class="lab">'+lab+'</span><span class="track"><span class="fill" data-w="'+w+'%"></span></span><span class="pct">'+pct+'%</span></div>';
+    return '<div class="viz-cap" style="margin-bottom:12px;">Activation drop-off</div>'+
+      bar('Signed up','100',100)+bar('Finished setup','55',55)+bar('Weekly active','48',48)+
+      '<div class="viz-src" style="margin-top:11px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>From Q3 Survey Results · 9 interviews</div>';
+  }
+
+  // ═══════════════ looping drag demo ═══════════════
+  // No tooltip. Each loop plays the whole gesture end-to-end so the outcome is
+  // self-evident: the cursor picks up an answer, carries it over, and a greyed
+  // preview lands on the page. It alternates the text and the chart, and stops
+  // the moment the user drags for real.
+  const CYCLE = 4300;
+  let loopTimers = [], loopOn = false, cycleIdx = 0;
+  const lt = (ms, fn) => loopTimers.push(setTimeout(fn, ms));
+
+  function startLoop(){
+    if(prefersReduced) return;   // reduced motion: no auto demo
+    loopOn = true; cycleIdx = 0; runCycle();
+  }
+  function stopLoop(){
+    loopOn = false;
+    loopTimers.forEach(clearTimeout); loopTimers = [];
+    clearPreview(true);
+    const dt = $('drag-text'); if(dt) dt.classList.remove('sel');
+    cursor.style.opacity = '0'; ghost.style.opacity = '0';
+    pageCol.classList.remove('drop-hot');
+  }
+
+  function runCycle(){
+    if(!loopOn) return;
+    const isText = (cycleIdx % 2 === 0);
+    const src = isText ? $('drag-text') : $('viz');
+    if(!src){ return; }
+    const s  = centerOf(src);
+    const pr = page.getBoundingClientRect();
+    const target = { x: pr.left + 46, y: pr.top + 30 };
+
+    // reset the moving pieces at the source, no transition yet
+    cursor.style.transition = ghost.style.transition = 'none';
+    place(cursor, s.x, s.y);
+    place(ghost, s.x + 14, s.y + 12);
+    cursor.style.opacity = '0'; ghost.style.opacity = '0';
+    buildGhost(isText);
+
+    // 1) cursor arrives on the answer
+    lt(180, () => { cursor.style.transition = 'opacity .2s'; cursor.style.opacity = '1'; });
+    // 2) "select" the text (sweep highlight) or nudge the chart
+    if(isText) lt(360, () => { const dt = $('drag-text'); if(dt) dt.classList.add('sel'); });
+    // 3) grab — the ghost lifts off
+    lt(1050, () => { ghost.style.transition = 'opacity .2s, transform .2s'; ghost.style.opacity = '1'; ghost.style.transform = 'scale(1.02)'; });
+    // 4) carry it across to the page
+    lt(1200, () => {
+      const ease = 'left 1.15s cubic-bezier(.35,.1,.2,1), top 1.15s cubic-bezier(.35,.1,.2,1)';
+      cursor.style.transition = ease + ', opacity .2s';
+      ghost.style.transition  = ease + ', opacity .2s';
+      place(cursor, target.x, target.y);
+      place(ghost, target.x + 14, target.y + 12);
+      pageCol.classList.add('drop-hot');
+    });
+    // 5) drop — the greyed preview appears where it lands, ghost dissolves into it
+    lt(2320, () => { showPreview(isText); ghost.style.transition = 'opacity .25s'; ghost.style.opacity = '0'; });
+    lt(2520, () => { cursor.style.opacity = '0'; pageCol.classList.remove('drop-hot'); });
+    // 6) hold the preview so it's legible, then clear and hand back to the user
+    lt(3550, () => { const dt = $('drag-text'); if(dt) dt.classList.remove('sel'); clearPreview(false); });
+
+    cycleIdx++;
+    lt(CYCLE, runCycle);
+  }
+
+  function buildGhost(isText){
+    if(isText){
+      ghost.style.maxWidth = '220px';
+      ghost.innerHTML = '<span style="background:#cfe0fb;border-radius:3px;padding:1px 2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;">'+ escapeHtml(KEY_SENTENCE) +'</span>';
+    } else {
+      ghost.style.maxWidth = '176px';
+      ghost.innerHTML = '<div style="font-weight:700;color:#1B365D;">Activation drop-off</div><div style="color:#3a6ea5;margin-top:4px;font-weight:600;">100% · 55% · 48%</div>';
+    }
+  }
+
+  // the greyed "this lands here" preview on the page
+  function showPreview(isText){
+    clearPreview(true);
+    const ph = $('page-ph'); if(ph) ph.style.display = 'none';
+    let node;
+    if(isText){
+      node = el('p','ghost-preview p-text');
+      node.innerHTML = escapeHtml(KEY_SENTENCE) + ' <span class="src">1</span>';
+    } else {
+      node = el('div','ghost-preview p-figure');
+      node.innerHTML = figureHTML();
+    }
+    page.insertBefore(node, page.firstChild);
+    if(!isText) lt(40, () => node.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w));
+  }
+  function clearPreview(immediate){
+    page.querySelectorAll('.ghost-preview').forEach(n => {
+      if(immediate){ n.remove(); }
+      else { n.style.transition = 'opacity .3s'; n.style.opacity = '0'; lt(320, () => n.remove()); }
+    });
+    // restore the placeholder only if nothing real has been dropped yet
+    const ph = $('page-ph');
+    if(ph && !page.querySelector('.dropped')) ph.style.display = '';
+  }
+
+  // ═══════════════ helpers ═══════════════
+  function el(tag,cls){ const n=document.createElement(tag); if(cls) n.className=cls; return n; }
+  function aIcon(){ return '<span class="a-ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg></span>'; }
+  function scrollChat(){ chat.scrollTop = chat.scrollHeight; }
+  function centerOf(node){ const r=node.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}; }
+  function place(node,x,y){ node.style.left=x+'px'; node.style.top=y+'px'; }
+  function show(node,extra){ if(!node) return; node.classList.add('show'); if(extra) node.classList.add(extra); }
+  function hideDemo(){ cursor.style.opacity='0'; ghost.style.opacity='0'; pageCol.classList.remove('drop-hot'); }
+  function escapeHtml(s){ return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  $('replay').addEventListener('click', run);
+  run();
+})();
+</script>
+</body>
+</html>

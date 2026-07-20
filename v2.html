@@ -815,7 +815,7 @@
       </article>
 
       <!-- ═══ CARD 2 — chat → page drag ═══ -->
-      <article class="wn-card">
+      <article class="wn-card" data-try="card02-example.html">
         <div class="wn-inner">
           <div class="mock">
             <div class="frame">
@@ -1329,9 +1329,14 @@
     else closePanel();
   });
 
-  // "Try it" is a prototype affordance — it must not navigate
+  // "Try it" is inert by default, except on cards that carry a data-try link to
+  // a worked example — those navigate to the example page.
   function inert(root) {
-    root.querySelectorAll('.wn-try').forEach((b) => b.addEventListener('click', (e) => e.preventDefault()));
+    root.querySelectorAll('.wn-try').forEach((b) => b.addEventListener('click', (e) => {
+      e.preventDefault();
+      const card = b.closest('[data-try]');
+      if (card) window.location.href = card.getAttribute('data-try');
+    }));
   }
   inert(document);
 
