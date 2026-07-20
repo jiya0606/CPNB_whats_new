@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copilot Notebooks — Select references</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{font-family:"Segoe UI Variable Display","Segoe UI Variable","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;color:#242424;background:#fff;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow:hidden;}
+  a{color:#0f6cbd;text-decoration:none;} a:hover{text-decoration:underline;}
+  button{font-family:inherit;cursor:pointer;}
+
+  .icon-btn{width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;}
+  .icon-btn:hover{background:#f0f0f0;}
+
+  #app{height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:#fff;}
+
+  /* ══ command bar ══ */
+  .cmd{display:flex;align-items:center;height:48px;flex:0 0 48px;border-bottom:1px solid #efefef;background:#fff;}
+  .cmd .primary{background:#242424;color:#fff;border:none;border-radius:5px;height:30px;padding:0 16px;font-size:13px;font-weight:600;}
+  .cmd .ghost{background:transparent;border:1px solid #e0e0e0;border-radius:6px;height:32px;padding:0 12px;font-size:13px;font-weight:600;color:#242424;display:flex;align-items:center;gap:6px;}
+  .cmd .ghost:hover{background:#f5f5f5;}
+
+  .body{flex:1;display:flex;min-height:0;}
+
+  /* left section nav */
+  .nav{flex:0 0 258px;padding:14px 12px;border-right:1px solid #efefef;background:#fff;overflow-y:auto;}
+  .nav .row{display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;}
+  .nav .row.active{background:#f0f0f0;border-left:2px solid #242424;font-weight:600;color:#242424;}
+  .nav .grp{font-size:12px;color:#8a8a8a;font-weight:600;padding:0 12px 8px;}
+  .nav .doc{display:flex;align-items:center;gap:10px;height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;}
+  .badge{width:16px;height:16px;border-radius:3px;flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700;}
+  .clip{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* center: overview */
+  main{flex:1;overflow-y:auto;min-width:0;background:#fff;border-right:1px solid #efefef;}
+  .sheet{max-width:960px;margin:0 auto;padding:22px 40px 80px;}
+
+  /* right chat rail */
+  .chat{flex:0 0 360px;background:#fff;display:flex;flex-direction:column;min-width:0;}
+
+  /* ══════════ Select References modal ══════════ */
+  .scrim{position:absolute;inset:0;background:rgba(24,24,24,.42);z-index:40;}
+  .modal{position:absolute;z-index:50;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:min(880px,92vw);background:#fff;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.32);
+    padding:26px 30px 22px;display:flex;flex-direction:column;max-height:88vh;}
+  .m-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .m-head h2{font-size:22px;font-weight:700;margin:0;letter-spacing:-.01em;}
+
+  .m-search{display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #1B365D;padding:6px 2px 10px;}
+  .m-search input{flex:1;border:none;outline:none;font-size:15px;color:#242424;background:transparent;}
+  .m-search input::placeholder{color:#9a9a9a;}
+  .m-tools{display:flex;align-items:center;gap:16px;color:#616161;}
+  .m-tools .cloud{color:#0f6cbd;}
+
+  .m-tabs{display:flex;gap:8px;margin:14px 0 6px;}
+  .m-tab{border:none;background:transparent;border-radius:18px;height:32px;padding:0 16px;font-size:14px;font-weight:600;color:#444;}
+  .m-tab:hover{background:#f2f2f2;}
+  .m-tab.on{background:#1b1b1b;color:#fff;}
+
+  .m-list{overflow-y:auto;margin:6px -6px 0;padding:0 6px;flex:1;min-height:120px;}
+  .m-row{display:flex;align-items:center;gap:12px;padding:9px 8px;border-radius:8px;cursor:pointer;}
+  .m-row:hover{background:#f5f7fa;}
+  .m-fico{width:26px;height:26px;border-radius:5px;flex:0 0 26px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;}
+  .m-fname{font-size:14px;font-weight:600;color:#1b1b1b;line-height:1.3;}
+  .m-fmeta{font-size:12px;color:#8a8a8a;margin-top:1px;}
+
+  .m-drop{margin-top:14px;border:1.5px dashed #cfcfcf;border-radius:10px;text-align:center;padding:20px 16px;}
+  .m-drop b{display:block;font-size:14px;font-weight:600;color:#3a3a3a;margin-bottom:5px;}
+  .m-drop small{font-size:12px;color:#9a9a9a;}
+
+  .m-sel{display:flex;align-items:center;gap:12px;margin-top:18px;font-size:14px;color:#3a3a3a;}
+  .m-chip{display:inline-flex;align-items:center;gap:8px;background:#f4f6fa;border:1px solid #e6ebf3;border-radius:7px;padding:5px 8px 5px 9px;font-size:13px;color:#242424;font-weight:600;}
+  .m-chip .x{width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#8a8a8a;}
+  .m-chip .x:hover{background:#e3e8f0;color:#333;}
+
+  .m-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:20px;}
+  .m-add{background:#1b1b1b;color:#fff;border:none;border-radius:7px;height:36px;padding:0 22px;font-size:14px;font-weight:600;}
+  .m-add:hover{background:#000;}
+  .m-cancel{background:transparent;border:none;border-radius:7px;height:36px;padding:0 16px;font-size:14px;font-weight:600;color:#242424;}
+  .m-cancel:hover{background:#f2f2f2;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════ COMMAND BAR (dimmed behind the modal) ══════════ -->
+  <header class="cmd">
+    <div style="width:48px;display:flex;justify-content:center;flex:0 0 48px;">
+      <button class="icon-btn" id="go-back" title="Back to notebooks" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding-left:6px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      <span style="font-size:14px;font-weight:600;">Customer Feedback Themes and Next Steps</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:6px;padding-right:12px;">
+      <span style="font-size:13px;color:#616161;margin-right:6px;">0 members</span>
+      <button class="primary" type="button">Share</button>
+      <button class="ghost" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>New notebook
+      </button>
+      <button class="icon-btn" title="More" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#424242"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════ BODY ══════════ -->
+  <div class="body">
+
+    <!-- left section nav -->
+    <aside class="nav">
+      <div class="row active">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#242424" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Overview
+      </div>
+      <div class="row">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1Z"/></svg>Create
+      </div>
+      <div class="row">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>Reference
+      </div>
+
+      <div style="height:1px;background:#efefef;margin:14px 8px;"></div>
+
+      <div class="grp">Created content</div>
+      <div class="doc"><span class="badge" style="background:#d24726;">P</span>Feedback Readout — Draft</div>
+
+      <div style="height:14px;"></div>
+      <div class="grp">References</div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <div class="doc"><span class="badge" style="background:#5b5fc7;">T</span><span class="clip">Weekly 1:1 with Priya — transcript</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Customer Interview 01 — Transcript</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Customer Interview 02 — Transcript</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Product Brief — Draft</span></div>
+        <div class="doc"><span class="badge" style="background:#217346;">X</span><span class="clip">Q3 Survey Results</span></div>
+        <div class="doc"><span class="badge" style="background:#2b579a;">W</span><span class="clip">Research Summary — Themes</span></div>
+      </div>
+    </aside>
+
+    <!-- center: overview -->
+    <main>
+      <div class="sheet">
+        <div style="font-size:15px;font-weight:600;">Overview</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a8a8a;margin-top:2px;">June 9, 2026
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.8"><path d="M20 11a8 8 0 1 0-.5 4M20 5v6h-6"/></svg>
+        </div>
+        <div style="height:1px;background:#efefef;margin:16px 0 24px;"></div>
+
+        <div style="display:flex;gap:52px;flex-wrap:wrap;">
+          <section style="flex:1 1 320px;min-width:280px;max-width:420px;">
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:10px;">Summary</div>
+            <h1 style="font-size:26px;line-height:1.2;font-weight:700;margin:0 0 18px;letter-spacing:-.01em;">Customer Feedback Themes and Next Steps</h1>
+            <p style="font-size:15px;line-height:1.7;color:#333;margin:0;">This notebook consolidates customer interviews, survey results, and internal notes into a single view of what people find valuable and where they get stuck. It groups the feedback into recurring themes, highlights the gaps worth acting on, and proposes the next steps the team should take this quarter. <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;vertical-align:middle;">1</span></p>
+          </section>
+
+          <section style="flex:1 1 420px;min-width:340px;">
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:12px;">Quick Create</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#fbe9d2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b8791d" stroke-width="1.7"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 0 2 2h1v-4H6a2 2 0 0 0-2 2Zm16 0a2 2 0 0 1-2 2h-1v-4h1a2 2 0 0 1 2 2Z"/></svg></span>Audio overview</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e8;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f8a70" stroke-width="1.7"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9"/></svg></span>Mind map</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#e6e1f5;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.7"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/><path d="M9 12h6M9 16h4"/></svg></span>Study guide</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#f8dfee;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b83e8e" stroke-width="1.7"><path d="M5 20V9M12 20V4M19 20v-7"/></svg></span>Infographic</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#217346" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></span>Spreadsheet</div>
+              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#dbe6f6;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2b579a" stroke-width="1.7"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/></svg></span>Document</div>
+            </div>
+
+            <div style="height:1px;background:#efefef;margin:30px 0 24px;"></div>
+
+            <div style="font-size:13px;color:#8a8a8a;margin-bottom:6px;">Key Insights</div>
+            <h2 style="font-size:23px;line-height:1.25;font-weight:700;margin:0 0 20px;letter-spacing:-.01em;">What Customers Value, and Where They Stall</h2>
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 10px;">Setup Is the Biggest Drop-off</h3>
+            <ul style="margin:0 0 22px;padding-left:20px;font-size:14px;line-height:1.7;color:#333;">
+              <li style="margin-bottom:8px;">Most interviewees described the first-run setup as the hardest part of getting started.</li>
+              <li>Once past setup, weekly usage climbs sharply and stays steady across the cohort.</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- right chat rail -->
+    <aside class="chat">
+      <div style="display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 18px;flex:0 0 48px;border-bottom:1px solid #f4f4f4;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;">Chat
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a8a5a" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <div style="font-size:24px;font-weight:700;color:#242424;letter-spacing:-.01em;">Summarize key themes</div>
+      </div>
+      <div style="padding:0 16px 18px;">
+        <div style="border:1px solid #e0e0e0;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);">
+          <div style="font-size:14px;color:#9a9a9a;margin-bottom:22px;">Message Copilot</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;color:#616161;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;">Provide a detailed explanation of [topic] in this notebook</div>
+          <div style="border:1px solid #ececec;border-radius:10px;padding:13px 15px;font-size:13px;color:#333;">Describe common themes in my notebook</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ══════════ SELECT REFERENCES MODAL ══════════ -->
+  <div class="scrim" id="scrim"></div>
+  <div class="modal" role="dialog" aria-label="Select references" aria-modal="true">
+    <div class="m-head">
+      <h2>Select References</h2>
+      <button class="icon-btn" id="m-close" title="Close" type="button">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="m-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input type="text" placeholder="Search" aria-label="Search references">
+      <div class="m-tools">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" title="Upload"><path d="M12 19V6M6 11l6-6 6 6"/><path d="M5 21h14"/></svg>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" title="Add link"><path d="M9.5 14.5 14.5 9.5"/><path d="M13 7l1.5-1.5a3.5 3.5 0 0 1 5 5L18 12"/><path d="M11 17l-1.5 1.5a3.5 3.5 0 0 1-5-5L6 12"/></svg>
+        <svg class="cloud" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" title="OneDrive"><path d="M6.5 19h11a3.5 3.5 0 0 0 .6-6.95A5 5 0 0 0 8.6 9.6 4 4 0 0 0 6.5 19Z"/></svg>
+      </div>
+    </div>
+
+    <div class="m-tabs">
+      <button class="m-tab" type="button">All</button>
+      <button class="m-tab on" type="button">Files</button>
+      <button class="m-tab" type="button">Meetings</button>
+      <button class="m-tab" type="button">Emails</button>
+      <button class="m-tab" type="button">Sites</button>
+    </div>
+
+    <!-- Files tab — OneDrive files relevant to this notebook -->
+    <div class="m-list">
+      <div class="m-row"><span class="m-fico" style="background:#2b579a;">W</span><span><div class="m-fname">Customer Interview 03 — Transcript</div><div class="m-fmeta">Opened by you 8 minutes ago</div></span></div>
+      <div class="m-row"><span class="m-fico" style="background:#217346;">X</span><span><div class="m-fname">Q3 Survey Results</div><div class="m-fmeta">Opened by you 24 minutes ago</div></span></div>
+      <div class="m-row"><span class="m-fico" style="background:#217346;">X</span><span><div class="m-fname">NPS Verbatims — Q3</div><div class="m-fmeta">Opened by you about an hour ago</div></span></div>
+      <div class="m-row"><span class="m-fico" style="background:#217346;">X</span><span><div class="m-fname">Feature Requests — Master List</div><div class="m-fmeta">Opened by you about an hour ago</div></span></div>
+      <div class="m-row"><span class="m-fico" style="background:#d24726;">P</span><span><div class="m-fname">Customer Feedback Readout — Draft</div><div class="m-fmeta">Opened by you 2 hours ago</div></span></div>
+      <div class="m-row"><span class="m-fico" style="background:#c8302a;">PDF</span><span><div class="m-fname">Support Tickets Export — June</div><div class="m-fmeta">Opened by you yesterday</div></span></div>
+      <div class="m-row"><span class="m-fico" style="background:#2b579a;">W</span><span><div class="m-fname">Research Summary — Themes</div><div class="m-fmeta">Opened by you yesterday</div></span></div>
+    </div>
+
+    <div class="m-drop">
+      <b>Drag your files and other content here</b>
+      <small>Supported file formats: DOCX, PPTX, XLSX, PDF, and more.</small>
+    </div>
+
+    <div class="m-sel">
+      <span>Selected references:</span>
+      <span class="m-chip">
+        <span class="badge" style="background:#217346;width:15px;height:15px;font-size:8px;">X</span>Q3 Survey Results
+        <button class="x" title="Remove" type="button">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </span>
+    </div>
+
+    <div class="m-actions">
+      <button class="m-add" id="m-add" type="button">Add</button>
+      <button class="m-cancel" id="m-cancel" type="button">Cancel</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+
+  // leaving the modal (X, Cancel, scrim, back) returns to the notebook the user
+  // came from — or v2.html if the page was opened directly.
+  const leave = () => {
+    if (document.referrer && history.length > 1) history.back();
+    else window.location.href = 'v2.html';
+  };
+  ['go-back','m-close','m-cancel','m-add','scrim'].forEach(id => $(id).addEventListener('click', leave));
+
+  // tabs are visual only in this static example — Files stays selected
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') leave(); });
+})();
+</script>
+</body>
+</html>
