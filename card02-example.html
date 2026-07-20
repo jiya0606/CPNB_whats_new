@@ -132,7 +132,7 @@
   <!-- ══════════ COMMAND BAR ══════════ -->
   <header class="cmd">
     <div style="width:48px;display:flex;justify-content:center;flex:0 0 48px;">
-      <button class="icon-btn" title="Back to notebooks" type="button">
+      <button class="icon-btn" id="go-back" title="Back to notebooks" type="button">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>
       </button>
     </div>
@@ -507,6 +507,12 @@
   function show(node,extra){ if(!node) return; node.classList.add('show'); if(extra) node.classList.add(extra); }
   function hideDemo(){ cursor.style.opacity='0'; ghost.style.opacity='0'; pageCol.classList.remove('drop-hot'); }
   function escapeHtml(s){ return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  // back to the notebook the user came from (fall back to v2 if opened directly)
+  $('go-back').addEventListener('click', () => {
+    if (document.referrer && history.length > 1) history.back();
+    else window.location.href = 'v2.html';
+  });
 
   $('replay').addEventListener('click', run);
   run();
