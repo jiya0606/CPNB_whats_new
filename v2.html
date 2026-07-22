@@ -428,6 +428,157 @@
   .in-view .c10-eq i:nth-child(4){animation-delay:.36s;}
   .in-view .c10-eq i:nth-child(5){animation-delay:.48s;}
 
+  /* ══════════ GUIDED TOUR (coach marks) ══════════
+     A "Try it" that teaches WHERE a feature lives: a spotlight ring pulses over
+     the real control, a caption explains the step, and clicking the ring walks
+     the user forward until the feature actually opens. */
+  .coach-catch{position:fixed;inset:0;z-index:200;background:transparent;}
+  .coach-hole{position:fixed;z-index:201;border-radius:9px;cursor:pointer;
+    box-shadow:0 0 0 3px rgba(15,108,189,.95), 0 0 0 9999px rgba(20,24,33,.44);
+    transition:top .3s cubic-bezier(.22,.9,.3,1),left .3s cubic-bezier(.22,.9,.3,1),width .3s cubic-bezier(.22,.9,.3,1),height .3s cubic-bezier(.22,.9,.3,1);}
+  .coach-hole::after{content:"";position:absolute;inset:-3px;border-radius:inherit;border:2px solid rgba(15,108,189,.75);animation:coachPulse 1.6s ease-out infinite;}
+  @keyframes coachPulse{0%{transform:scale(1);opacity:.85;}100%{transform:scale(1.28);opacity:0;}}
+  .coach-tip{position:fixed;z-index:202;width:250px;background:#1B365D;color:#fff;border-radius:11px;padding:13px 15px;box-shadow:0 14px 34px rgba(0,0,0,.3);opacity:0;transform:translateY(6px);transition:opacity .2s ease,transform .2s ease;}
+  .coach-tip.on{opacity:1;transform:none;}
+  .coach-tip .coach-step{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#9db7dc;margin-bottom:5px;}
+  .coach-tip .coach-cap{font-size:13px;line-height:1.5;font-weight:500;}
+  .coach-tip .coach-cap b{font-weight:700;}
+  .coach-tip .coach-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
+  .coach-tip .coach-hint{font-size:11px;color:#9db7dc;font-weight:600;display:flex;align-items:center;gap:5px;}
+  .coach-hint svg{width:12px;height:12px;animation:coachTap 1.5s ease-in-out infinite;}
+  @keyframes coachTap{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
+  .coach-skip{background:rgba(255,255,255,.14);color:#dfe8f5;border:none;border-radius:5px;height:26px;padding:0 11px;font-size:11.5px;font-weight:600;}
+  .coach-skip:hover{background:rgba(255,255,255,.24);color:#fff;}
+  .coach-tip::before{content:"";position:absolute;width:12px;height:12px;background:#1B365D;transform:rotate(45deg);}
+  .coach-tip[data-place="below"]::before{top:-5px;left:26px;}
+  .coach-tip[data-place="above"]::before{bottom:-5px;left:26px;}
+  .coach-tip[data-place="left"]::before{right:-5px;top:22px;}
+  .coach-tip[data-place="right"]::before{left:-5px;top:22px;}
+
+  /* ══════════ FEATURE POPUPS (the real control a tour opens) ══════════
+     Each mirrors a screenshot from the handoff, rebuilt in the monochrome
+     Fluent style. Anchored ones are positioned in JS from the target's rect. */
+  .pop{position:fixed;z-index:150;opacity:0;pointer-events:none;transform:translateY(6px) scale(.98);transform-origin:top center;transition:opacity .18s ease,transform .18s cubic-bezier(.22,.9,.3,1);}
+  .pop.on{opacity:1;pointer-events:auto;transform:none;}
+  .pop-scrim{position:fixed;inset:0;background:rgba(24,24,24,.28);z-index:140;opacity:0;pointer-events:none;transition:opacity .2s ease;}
+  .pop-scrim.on{opacity:1;pointer-events:auto;}
+  .pop-x{position:absolute;top:12px;right:12px;width:28px;height:28px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#616161;}
+  .pop-x:hover{background:#f0f0f0;}
+  .pop-card{background:#fff;border-radius:12px;box-shadow:0 22px 60px rgba(0,0,0,.26);border:1px solid #eee;}
+  .pop-flyout{background:#fff;border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.2);border:1px solid #e6e6e6;}
+  .pop-title{font-size:16px;font-weight:700;}
+  .pop-lbl{font-size:12px;color:#8a8a8a;font-weight:600;}
+
+  /* centered modal shell (Select References / Audio / Mind map / Draft) */
+  .modal-center{left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);}
+  .modal-center.on{transform:translate(-50%,-50%);}
+
+  /* Select References dialog (card 1) */
+  #pop-refs .pop-card{width:520px;max-width:calc(100vw - 40px);padding:20px;}
+  .rf-tabs{display:flex;gap:4px;border-bottom:1px solid #eee;margin:16px 0 6px;}
+  .rf-tab{font-size:13px;color:#616161;padding:8px 12px;border-bottom:2px solid transparent;font-weight:600;cursor:pointer;}
+  .rf-tab.sel{color:#0f6cbd;border-bottom-color:#0f6cbd;}
+  .rf-search{display:flex;align-items:center;gap:8px;border:1px solid #e2e2e2;border-radius:7px;padding:8px 11px;color:#9a9a9a;font-size:13px;margin-top:4px;}
+  .rf-row{display:flex;align-items:center;gap:11px;padding:10px 6px;border-radius:7px;font-size:13.5px;}
+  .rf-row:hover{background:#f6f6f6;}
+  .rf-row .rf-ck{width:16px;height:16px;border:1.6px solid #c4c4c4;border-radius:4px;flex:0 0 16px;}
+  .rf-ico{width:22px;height:22px;border-radius:5px;flex:0 0 22px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;}
+  .rf-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;}
+
+  /* Share popup (card 4) — anchored under the Share button */
+  #pop-share .pop-card{width:330px;padding:16px;}
+  .sh-input{border:1px solid #d8d8d8;border-radius:7px;height:36px;display:flex;align-items:center;padding:0 11px;font-size:13px;color:#242424;margin:12px 0 0;}
+  .sh-input .sh-caret{width:1px;height:16px;background:#242424;animation:coachTap 1s step-end infinite;margin-left:1px;}
+  .sh-auto{border:1px solid #eaeaea;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:8px;margin-top:6px;display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(-4px);transition:opacity .25s ease,transform .25s ease;}
+  .sh-auto.on{opacity:1;transform:none;}
+  .sh-av{width:30px;height:30px;border-radius:50%;background:#6b6bb0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:0 0 30px;}
+  .sh-note{font-size:11px;color:#8a8a8a;line-height:1.5;margin-top:12px;}
+  .sh-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+
+  /* Audio Customize popup (card 10) */
+  #pop-audio .pop-card{width:400px;max-width:calc(100vw - 40px);padding:20px;}
+  .au-row{margin-bottom:14px;}
+  .au-seg{display:flex;gap:6px;margin-top:6px;}
+  .au-chip{border:1px solid #e0e0e0;border-radius:16px;padding:6px 13px;font-size:12.5px;color:#424242;}
+  .au-chip.sel{background:#242424;color:#fff;border-color:#242424;}
+
+  /* Sources button that appears in the composer + connector flyout (card 5) */
+  .cc-sources{display:none;align-items:center;gap:6px;border:1px solid #d8d8d8;border-radius:15px;height:28px;padding:0 12px;font-size:12.5px;font-weight:600;color:#242424;background:#fff;}
+  .cc-sources.show{display:inline-flex;}
+  #pop-sources .pop-flyout{width:250px;padding:8px;}
+  .sc-search{border:1px solid #e6e6e6;border-radius:7px;height:30px;display:flex;align-items:center;padding:0 10px;color:#9a9a9a;font-size:12px;margin-bottom:6px;}
+  .sc-row{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:6px;font-size:13px;}
+  .sc-row:hover{background:#f6f6f6;}
+  .sc-ico{width:20px;height:20px;border-radius:5px;flex:0 0 20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;}
+  .sc-tog{width:30px;height:17px;border-radius:9px;background:#0f6cbd;position:relative;flex:0 0 30px;margin-left:auto;}
+  .sc-tog::after{content:"";position:absolute;top:2px;right:2px;width:13px;height:13px;border-radius:50%;background:#fff;}
+  .sc-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #f0f0f0;margin-top:4px;padding:8px 6px 2px;font-size:12px;}
+
+  /* Citations / Sources side panel (card 7) */
+  #pop-cites{top:0;right:0;height:100%;width:320px;background:#fff;box-shadow:-10px 0 34px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .28s cubic-bezier(.22,.75,.3,1);opacity:1;}
+  #pop-cites.on{transform:translateX(0);}
+  .ci-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 12px;}
+  .ci-sec{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8a8a;padding:10px 18px 6px;}
+  .ci-row{display:flex;gap:11px;padding:11px 18px;font-size:13px;}
+  .ci-row.hi{background:#fff6dd;border-left:3px solid #e0a500;}
+  .ci-row .rf-ico{width:24px;height:24px;flex:0 0 24px;}
+  .cite-chip{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:#e7eefb;color:#0f6cbd;font-size:10px;font-weight:700;vertical-align:middle;cursor:pointer;transition:background .15s ease;}
+  .cite-chip:hover{background:#d3e2fa;}
+
+  /* Model picker menu (card 8) */
+  .chat-model{display:inline-flex;align-items:center;gap:5px;border:1px solid #e4e4e4;border-radius:15px;height:26px;padding:0 10px;font-size:12.5px;font-weight:600;color:#242424;background:#fff;}
+  .chat-model:hover{background:#f5f5f5;}
+  #pop-model .pop-card{width:230px;padding:8px;}
+  .md-h{font-size:11px;font-weight:700;color:#8a8a8a;padding:6px 10px 4px;}
+  .md-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;font-size:14px;color:#242424;}
+  .md-row:hover{background:#f4f4f4;}
+  .md-row .md-ck{width:15px;flex:0 0 15px;color:#0f6cbd;}
+  .md-row .md-caret{margin-left:auto;color:#9a9a9a;}
+  .md-div{height:1px;background:#f0f0f0;margin:4px 6px;}
+  /* an example answer seeded into the chat rail so there's a response to reshape */
+  .ex-answer{border:1px solid #ececec;border-radius:12px;padding:13px 15px;text-align:left;width:100%;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .ex-answer .ln{background:#e6e6e6;}
+  .ex-tools{display:flex;gap:14px;color:#8a8a8a;margin-top:12px;}
+  .ex-tools svg{width:16px;height:16px;}
+  #chat-body.seeding{justify-content:flex-start!important;align-items:stretch!important;padding-top:18px!important;gap:12px;}
+  #chat-body.seeding > *:not(#ex-seed){display:none;}
+  .ex-q{align-self:flex-end;background:#eef3fb;border:1px solid #dce6f4;border-radius:12px 12px 4px 12px;padding:9px 13px;font-size:13px;max-width:80%;}
+
+  /* Draft-a-deliverable generating popup (card 3) */
+  #pop-draft .pop-card{width:340px;padding:22px;text-align:center;}
+  .dr-spin{width:34px;height:34px;border-radius:50%;border:3px solid #e8e8e8;border-top-color:#2b579a;margin:0 auto 14px;animation:drSpin .8s linear infinite;}
+  @keyframes drSpin{to{transform:rotate(360deg);}}
+  .dr-tile{margin-top:16px;border:1px solid #ececec;border-radius:9px;padding:12px;text-align:left;display:flex;align-items:center;gap:11px;opacity:0;transform:translateY(6px);transition:opacity .3s ease,transform .3s ease;}
+  .dr-tile.on{opacity:1;transform:none;}
+
+  /* Mind map popup (card 9) */
+  #pop-mind .pop-card{width:440px;max-width:calc(100vw - 40px);padding:20px;}
+  .mm-stage{height:230px;border-radius:9px;background:#fafafa;position:relative;overflow:hidden;}
+  .mm-node{position:absolute;transform:translate(-50%,-50%);border-radius:16px;padding:6px 12px;font-size:12px;font-weight:600;background:#fff;border:1px solid #dfdfdf;box-shadow:0 2px 8px rgba(0,0,0,.07);opacity:0;transition:opacity .4s ease,transform .4s ease;}
+  .mm-node.c{background:#1B365D;color:#fff;border-color:#1B365D;font-size:13px;padding:8px 15px;}
+  .pop.on .mm-node{opacity:1;}
+  .mm-line{position:absolute;height:1.5px;background:#d0d0d0;transform-origin:left center;opacity:0;transition:opacity .4s ease;}
+  .pop.on .mm-line{opacity:1;}
+
+  /* Suggested-edits example page (card 6) — an example source opened over the notebook */
+  #page-view{position:absolute;inset:0;z-index:130;background:#fff;display:none;flex-direction:column;}
+  #page-view.on{display:flex;}
+  .pv-bar{display:flex;align-items:center;gap:10px;height:48px;flex:0 0 48px;border-bottom:1px solid #efefef;padding:0 8px;}
+  .pv-body{flex:1;display:flex;min-height:0;}
+  .pv-chat{flex:0 0 300px;border-right:1px solid #efefef;background:#fafafa;display:flex;flex-direction:column;padding:16px;min-height:0;}
+  .pv-doc{flex:1;overflow-y:auto;padding:34px 48px;min-width:0;}
+  .pv-sug{flex:0 0 300px;border-left:1px solid #efefef;background:#fff;padding:16px;overflow-y:auto;display:none;}
+  .pv-sug.on{display:block;}
+  .pv-suggest{margin-top:auto;align-self:flex-start;background:#f0f0f0;color:#242424;border:1px solid #e2e2e2;border-radius:7px;height:34px;padding:0 15px;font-size:13px;font-weight:600;}
+  .sg-card{border:1px solid #ececec;border-radius:10px;padding:13px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);opacity:0;transform:translateY(8px);transition:opacity .35s ease,transform .35s ease;}
+  .sg-card.on{opacity:1;transform:none;}
+  .sg-hd{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#242424;margin-bottom:7px;}
+  .sg-hd .sg-badge{font-size:9px;font-weight:600;color:#8a8a8a;}
+  .sg-txt{font-size:12.5px;color:#444;line-height:1.55;margin-bottom:10px;}
+  .sg-apply{background:#242424;color:#fff;border:none;border-radius:6px;height:28px;padding:0 14px;font-size:12px;font-weight:600;}
+  .pv-hl{background:#eef3fb;border-radius:3px;transition:background .3s ease;}
+  .pv-hl.done{background:transparent;}
+
   @media (prefers-reduced-motion:reduce){
     .ft-wrap::before,.ft-pill{animation:none!important;}
     .wn-card,.wn-card *{animation:none!important;transition:none!important;}
@@ -435,6 +586,7 @@
     .c6-before,.c2-ghost,.c8-menu{opacity:0;}
     .c6-after,.c2-landed,.c7-src,.c3-doc,.c5-fly{opacity:1;transform:none;}
     .c8-line{width:100%;}
+    .coach-hole::after,.coach-hint svg,.dr-spin,.sh-input .sh-caret{animation:none!important;}
   }
 </style>
 </head>
@@ -556,7 +708,7 @@
     <div style="flex:1;"></div>
     <div style="display:flex;align-items:center;gap:6px;padding-right:12px;">
       <span style="font-size:13px;color:#616161;margin-right:6px;">0 members</span>
-      <button style="background:#242424;color:#fff;border:none;border-radius:5px;height:30px;padding:0 16px;font-size:13px;font-weight:600;">Share</button>
+      <button id="nb-share" style="background:#242424;color:#fff;border:none;border-radius:5px;height:30px;padding:0 16px;font-size:13px;font-weight:600;">Share</button>
       <button title="Collaborate" style="width:34px;height:34px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#424242;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.2"/><path d="M15 19a4 4 0 0 1 6.5-3.1"/></svg>
       </button>
@@ -599,7 +751,7 @@
       <div style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1Z"/></svg>Create
       </div>
-      <div style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+      <div id="nb-ref" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border-radius:6px;font-size:14px;color:#424242;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>Reference
       </div>
 
@@ -635,7 +787,7 @@
           <section style="flex:1 1 320px;min-width:280px;max-width:420px;">
             <div style="font-size:13px;color:#8a8a8a;margin-bottom:10px;">Summary</div>
             <h1 style="font-size:26px;line-height:1.2;font-weight:700;margin:0 0 18px;letter-spacing:-.01em;">Customer Feedback Themes and Next Steps</h1>
-            <p style="font-size:15px;line-height:1.7;color:#333;margin:0;">This notebook consolidates customer interviews, survey results, and internal notes into a single view of what people find valuable and where they get stuck. It groups the feedback into recurring themes, highlights the gaps worth acting on, and proposes the next steps the team should take this quarter. <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:#f0f0f0;font-size:10px;color:#616161;vertical-align:middle;">1</span></p>
+            <p style="font-size:15px;line-height:1.7;color:#333;margin:0;">This notebook consolidates customer interviews, survey results, and internal notes into a single view of what people find valuable and where they get stuck. It groups the feedback into recurring themes, highlights the gaps worth acting on, and proposes the next steps the team should take this quarter. <span id="cite-1" class="cite-chip">1</span></p>
             <div style="display:flex;gap:16px;margin-top:20px;color:#8a8a8a;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v3h5a2 2 0 0 1 2 2.4l-1.5 6A2 2 0 0 1 16.5 20H7"/></svg>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="transform:rotate(180deg);"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v3h5a2 2 0 0 1 2 2.4l-1.5 6A2 2 0 0 1 16.5 20H7"/></svg>
@@ -644,21 +796,21 @@
 
           <section style="flex:1 1 420px;min-width:340px;">
             <div style="font-size:13px;color:#8a8a8a;margin-bottom:12px;">Quick Create</div>
-            <div style="display:flex;gap:14px;margin-bottom:14px;">
-              <div style="flex:1;border:1px solid #ececec;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+            <div id="qc-row" style="display:flex;gap:14px;margin-bottom:14px;">
+              <div id="qc-pres" style="flex:1;border:1px solid #ececec;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="width:20px;height:20px;border-radius:4px;background:#d24726;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">P</span><span style="font-size:13px;color:#616161;">Presentation</span></div>
                 <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Quick presentation</div>
                 <div style="font-size:12px;color:#8a8a8a;line-height:1.5;">Select to turn your notebook content into an editable presentation.</div>
               </div>
-              <div style="flex:1;border:1px solid #ececec;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+              <div id="qc-doc" style="flex:1;border:1px solid #ececec;border-radius:8px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span style="width:20px;height:20px;border-radius:4px;background:#2b579a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">W</span><span style="font-size:13px;color:#616161;">Document</span></div>
                 <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Quick document</div>
                 <div style="font-size:12px;color:#8a8a8a;line-height:1.5;">Select to create an editable document using all the content in your notebook.</div>
               </div>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:10px;">
-              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#fbe9d2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b8791d" stroke-width="1.7"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 0 2 2h1v-4H6a2 2 0 0 0-2 2Zm16 0a2 2 0 0 1-2 2h-1v-4h1a2 2 0 0 1 2 2Z"/></svg></span>Audio overview</div>
-              <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e8;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f8a70" stroke-width="1.7"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9"/></svg></span>Mind map</div>
+              <div id="qc-audio" style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#fbe9d2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b8791d" stroke-width="1.7"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14a2 2 0 0 0 2 2h1v-4H6a2 2 0 0 0-2 2Zm16 0a2 2 0 0 1-2 2h-1v-4h1a2 2 0 0 1 2 2Z"/></svg></span>Audio overview</div>
+              <div id="qc-mind" style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e8;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f8a70" stroke-width="1.7"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9"/></svg></span>Mind map</div>
               <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#e6e1f5;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.7"><path d="M6 4h9l3 3v13H6zM15 4v3h3"/><path d="M9 12h6M9 16h4"/></svg></span>Study guide</div>
               <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#f8dfee;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b83e8e" stroke-width="1.7"><path d="M5 20V9M12 20V4M19 20v-7"/></svg></span>Infographic</div>
               <div style="display:flex;align-items:center;gap:8px;border:1px solid #ececec;border-radius:22px;padding:7px 14px 7px 8px;font-size:13px;"><span style="width:26px;height:26px;border-radius:50%;background:#d9f0e2;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#217346" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></span>Spreadsheet</div>
@@ -695,9 +847,12 @@
     <aside style="flex:0 0 360px;border-left:1px solid #efefef;background:#fff;display:flex;flex-direction:column;min-width:0;">
       <div style="display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 18px;">
         <div style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;">Chat <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a8a5a" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button id="chat-model" class="chat-model" type="button">Auto <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg></button>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a8a5a" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
       </div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+      <div id="chat-body" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;min-height:0;overflow-y:auto;">
         <div style="font-size:24px;font-weight:700;color:#242424;letter-spacing:-.01em;">Let's connect the dots</div>
 
         <!-- one new feature surfaced in the rail; expands into the full card -->
@@ -718,9 +873,10 @@
         <div style="border:1px solid #e0e0e0;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);">
           <div style="font-size:14px;color:#9a9a9a;margin-bottom:22px;">Message Copilot</div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="display:flex;gap:12px;color:#616161;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+            <div style="display:flex;align-items:center;gap:12px;color:#616161;">
+              <span id="cc-plus" style="display:flex;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span>
+              <span id="cc-globe" style="display:flex;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>
+              <button id="cc-sources" class="cc-sources" type="button"><span style="width:14px;height:14px;border-radius:50%;background:#0f6cbd;display:inline-block;"></span>Sources</button>
             </div>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#616161" stroke-width="1.6"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg>
           </div>
@@ -761,6 +917,184 @@
     <div id="wn-body" style="flex:1;overflow-y:auto;padding:0 10px 32px;display:flex;flex-direction:column;"></div>
   </div>
 
+  <!-- ══════════ FEATURE POPUPS (opened at the end of a guided tour) ══════════ -->
+  <div id="pop-scrim" class="pop-scrim"></div>
+
+  <!-- Card 1 · Select References -->
+  <div id="pop-refs" class="pop modal-center">
+    <div class="pop-card">
+      <button class="pop-x" data-pop-close type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="pop-title">Select References</div>
+      <div class="rf-tabs">
+        <div class="rf-tab sel">Files</div><div class="rf-tab">Meetings</div><div class="rf-tab">Emails</div>
+      </div>
+      <div class="rf-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b8b8b8" stroke-width="2.2"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>Search OneDrive and SharePoint</div>
+      <div style="margin-top:8px;max-height:230px;overflow-y:auto;">
+        <div class="rf-row"><span class="rf-ck"></span><span class="rf-ico" style="background:#2b579a;">W</span>Customer Interview 03 — Transcript</div>
+        <div class="rf-row"><span class="rf-ck"></span><span class="rf-ico" style="background:#217346;">X</span>Q2 Survey Results</div>
+        <div class="rf-row"><span class="rf-ck"></span><span class="rf-ico" style="background:#d24726;">P</span>Roadmap Review — Deck</div>
+        <div class="rf-row"><span class="rf-ck"></span><span class="rf-ico" style="background:#2b579a;">W</span>Onboarding Notes — Draft</div>
+      </div>
+      <div class="rf-foot">
+        <button class="btn-light" data-pop-close type="button">Cancel</button>
+        <button class="btn-dark" data-pop-close type="button">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4 · Share popup (anchored under the Share button) -->
+  <div id="pop-share" class="pop">
+    <div class="pop-card">
+      <div class="pop-title" style="font-size:15px;">Share this notebook</div>
+      <div class="sh-input">Jordan Ma<span class="sh-caret"></span></div>
+      <div class="sh-auto" id="sh-auto">
+        <span class="sh-av">JM</span>
+        <span><span style="font-size:13px;font-weight:600;display:block;">Jordan Mabry</span><span style="font-size:11px;color:#8a8a8a;">jordan.mabry@northwind.example</span></span>
+      </div>
+      <div class="sh-note">All notebook content and links are shared. Chats and audio overviews stay private.</div>
+      <div class="sh-foot">
+        <button class="btn-light" data-pop-close type="button">Cancel</button>
+        <button class="btn-dark" data-pop-close type="button">Share</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 10 · Audio Customize popup -->
+  <div id="pop-audio" class="pop modal-center">
+    <div class="pop-card">
+      <button class="pop-x" data-pop-close type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="pop-title">Customize your audio overview</div>
+      <div style="margin-top:16px;">
+        <div class="au-row"><div class="pop-lbl">Voice</div><div class="au-seg"><span class="au-chip sel">Ava</span><span class="au-chip">Steffan</span></div></div>
+        <div class="au-row"><div class="pop-lbl">Format</div><div class="au-seg"><span class="au-chip sel">Narration</span><span class="au-chip">Dialog</span></div></div>
+        <div class="au-row"><div class="pop-lbl">Style</div><div class="au-seg"><span class="au-chip sel">Professional</span><span class="au-chip">Casual</span></div></div>
+        <div class="au-row"><div class="pop-lbl">Duration</div><div class="au-seg"><span class="au-chip">Shorter</span><span class="au-chip sel">Medium</span><span class="au-chip">Longer</span></div></div>
+        <div class="au-row" style="margin-bottom:4px;"><div class="pop-lbl">Additional customizations</div><div style="border:1px solid #e6e6e6;border-radius:7px;height:52px;margin-top:6px;"></div></div>
+      </div>
+      <div class="rf-foot"><button class="btn-dark" data-pop-close type="button">Generate audio</button></div>
+    </div>
+  </div>
+
+  <!-- Card 5 · Connector sources flyout (anchored above the Sources button) -->
+  <div id="pop-sources" class="pop">
+    <div class="pop-flyout">
+      <div class="sc-search"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b8b8b8" stroke-width="2.2"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>Search sources</div>
+      <div class="sc-row"><span class="sc-ico" style="background:#1f8a70;">🌐</span>Web<span class="sc-tog"></span></div>
+      <div class="sc-row"><span class="sc-ico" style="background:#d24726;">M</span>Microsoft 365<span class="sc-tog"></span></div>
+      <div class="sc-row"><span class="sc-ico" style="background:#6a4bbc;">A</span>Agents<span class="sc-tog"></span></div>
+      <div style="height:1px;background:#f0f0f0;margin:6px 6px;"></div>
+      <div class="sc-row"><span class="sc-ico" style="background:#1a73c7;">C</span>Confluence<span class="sc-tog"></span></div>
+      <div class="sc-row"><span class="sc-ico" style="background:#c0392b;">P</span>PitchBook<span class="sc-tog"></span></div>
+      <div class="sc-row"><span class="sc-ico" style="background:#e0a500;">S</span>S&amp;P Global<span class="sc-tog"></span></div>
+      <div class="sc-foot"><a href="#" onclick="return false;">View all</a><a href="#" onclick="return false;">Deselect all</a></div>
+    </div>
+  </div>
+
+  <!-- Card 7 · Citations / Sources side panel -->
+  <div id="pop-cites" class="pop">
+    <div class="ci-hd"><span class="pop-title">Sources</span><button class="pop-x" data-pop-close type="button" style="position:static;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="ci-sec">Citations</div>
+    <div class="ci-row hi"><span class="rf-ico" style="background:#217346;">X</span><span><b style="font-size:13px;">Q3 Survey Results</b><br><span style="color:#8a8a8a;font-size:12px;">“…first-run setup was the hardest part of getting started.”</span></span></div>
+    <div class="ci-row"><span class="rf-ico" style="background:#2b579a;">W</span><span><b style="font-size:13px;">Customer Interview 01</b><br><span style="color:#8a8a8a;font-size:12px;">Transcript · page 2</span></span></div>
+    <div class="ci-sec">More</div>
+    <div class="ci-row"><span class="rf-ico" style="background:#2b579a;">W</span><span><b style="font-size:13px;">Research Summary — Themes</b><br><span style="color:#8a8a8a;font-size:12px;">Referenced across 4 answers</span></span></div>
+  </div>
+
+  <!-- Card 8 · Model picker menu (anchored under the model pill) -->
+  <div id="pop-model" class="pop">
+    <div class="pop-card">
+      <div class="md-h">Model</div>
+      <div class="md-row"><span class="md-ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg></span>Auto<span class="md-caret"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div>
+      <div class="md-row" id="md-claude"><span class="md-ck"></span>Claude Opus 4.8<span class="md-caret"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div>
+      <div class="md-row" id="md-gpt"><span class="md-ck"></span>GPT 5.5 Thinking<span class="md-caret"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div>
+      <div class="md-div"></div>
+      <div class="md-row" style="color:#616161;font-size:13px;"><span class="md-ck"></span>Open in M365 Copilot app</div>
+    </div>
+  </div>
+
+  <!-- Card 3 · Draft-a-deliverable generating popup -->
+  <div id="pop-draft" class="pop modal-center">
+    <div class="pop-card">
+      <div class="dr-spin"></div>
+      <div style="font-size:15px;font-weight:700;">Creating your document</div>
+      <div style="font-size:13px;color:#8a8a8a;margin-top:6px;">Copilot is drafting from your notebook, matched to your org template…</div>
+      <div class="dr-tile" id="dr-tile">
+        <span class="rf-ico" style="background:#2b579a;width:26px;height:26px;">W</span>
+        <span><b style="font-size:13px;">Customer Feedback — Summary.docx</b><br><span style="font-size:11px;color:#8a8a8a;">Ready · opened in a new tab</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 9 · Mind map popup -->
+  <div id="pop-mind" class="pop modal-center">
+    <div class="pop-card">
+      <button class="pop-x" data-pop-close type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="pop-title">Mind map</div>
+      <div class="mm-stage" style="margin-top:14px;">
+        <span class="mm-line" style="left:50%;top:50%;width:120px;transform:rotate(200deg);"></span>
+        <span class="mm-line" style="left:50%;top:50%;width:120px;transform:rotate(330deg);"></span>
+        <span class="mm-line" style="left:50%;top:50%;width:110px;transform:rotate(90deg);"></span>
+        <span class="mm-node c" style="left:50%;top:50%;">Customer Feedback</span>
+        <span class="mm-node" style="left:20%;top:28%;">Setup friction</span>
+        <span class="mm-node" style="left:82%;top:30%;">Sharing &amp; reuse</span>
+        <span class="mm-node" style="left:50%;top:86%;">Source trust</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 6 · Suggested edits — an example source opened over the notebook -->
+  <div id="page-view">
+    <div class="pv-bar">
+      <button id="pv-back" class="icon-btn" title="Back to notebook" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <span style="width:18px;height:18px;border-radius:4px;background:#2b579a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;">W</span>
+      <span style="font-size:14px;font-weight:600;">Product Kickoff — Cloud Growth</span>
+    </div>
+    <div class="pv-body">
+      <aside class="pv-chat">
+        <div style="font-size:13px;color:#616161;line-height:1.6;">Here's a draft outline for the project page, based on your notebook.</div>
+        <button id="pv-suggest" class="pv-suggest" type="button">Suggest edits</button>
+      </aside>
+      <main class="pv-doc">
+        <h1 style="font-size:28px;font-weight:700;margin:0 0 22px;letter-spacing:-.01em;">Project: Cloud Growth</h1>
+        <h3 style="font-size:15px;font-weight:700;margin:0 0 8px;">Purpose</h3>
+        <p id="pv-p1" style="font-size:14px;line-height:1.75;color:#333;margin:0 0 20px;"><span class="pv-hl" id="pv-hl1">To align cross-functional teams on the strategic direction for accelerating cloud adoption across enterprise clients in Q4 and beyond.</span></p>
+        <h3 style="font-size:15px;font-weight:700;margin:0 0 8px;">Key Discussion Points</h3>
+        <ul style="font-size:14px;line-height:1.8;color:#333;margin:0;padding-left:20px;">
+          <li>Cloud adoption is growing at 18% YoY in the mid-market segment.</li>
+          <li id="pv-p2"><span class="pv-hl" id="pv-hl2">SMBs and mid-market enterprises are showing increased interest in hybrid cloud solutions and want simpler onboarding and clearer billing.</span></li>
+          <li>Develop customer success stories to build trust and credibility.</li>
+        </ul>
+      </main>
+      <aside class="pv-sug" id="pv-sug">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;">Edit suggestions</div>
+        <div class="sg-card" id="sg1">
+          <div class="sg-hd"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.8"><path d="M12 3l2 6-2 12-2-12 2-6Z"/></svg>Copilot<span class="sg-badge">· Private</span></div>
+          <div class="sg-txt">Improve this section by indicating how teams align across key areas for clearer context.</div>
+          <button class="sg-apply" data-apply="pv-hl1" type="button">Apply</button>
+        </div>
+        <div class="sg-card" id="sg2">
+          <div class="sg-hd"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6a4bbc" stroke-width="1.8"><path d="M12 3l2 6-2 12-2-12 2-6Z"/></svg>Copilot<span class="sg-badge">· Private</span></div>
+          <div class="sg-txt">This bullet is long. Split it into two sentences and remove repeated phrasing.</div>
+          <button class="sg-apply" data-apply="pv-hl2" type="button">Apply</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ══════════ GUIDED-TOUR COACH OVERLAY ══════════ -->
+  <div id="coach" style="display:none;">
+    <div id="coach-catch" class="coach-catch"></div>
+    <div id="coach-hole" class="coach-hole"></div>
+    <div id="coach-tip" class="coach-tip">
+      <div class="coach-step" id="coach-step"></div>
+      <div class="coach-cap" id="coach-cap"></div>
+      <div class="coach-foot">
+        <span class="coach-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11V6a2 2 0 0 1 4 0v5m0-2a2 2 0 0 1 4 0v3m0-1a2 2 0 0 1 4 0v4a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7L5 15"/></svg>Click the highlight</span>
+        <button class="coach-skip" id="coach-skip" type="button">Skip</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ════════════════════════ CARD LIBRARY ════════════════════════
@@ -770,7 +1104,7 @@
 <template id="wn-cards">
 
       <!-- ═══ CARD 1 — Select References ═══ -->
-      <article class="wn-card" data-try="card01-example.html">
+      <article class="wn-card">
         <div class="wn-inner">
           <div class="mock">
             <div class="c1-dlg card-surface">
@@ -1322,23 +1656,251 @@
   });
   $('ft-close').addEventListener('click', closeFeature);
 
-  // Escape unwinds the topmost layer first
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (ftModal.classList.contains('on')) closeFeature();
-    else closePanel();
+  /* ══════════════════ GUIDED TOURS ══════════════════
+     A "Try it" on a feature that has a real home in the product doesn't jump to
+     a canned page — it drops the user into the notebook and spotlights the exact
+     control to click, one step at a time, until the feature actually opens. */
+
+  const coach = $('coach'), coachHole = $('coach-hole'), coachTip = $('coach-tip'),
+        popScrim = $('pop-scrim'), pageView = $('page-view'), chatBody = $('chat-body');
+
+  // map a card (by its title) to the tour it launches; cards without an entry
+  // keep their old behaviour (card 2 still navigates to its worked example)
+  const TOUR_BY_TITLE = [
+    [/pull in onedrive/i, 'references'], [/draft decks/i, 'draft'],
+    [/shared workspace/i, 'share'],      [/connectors/i, 'connectors'],
+    [/in-line suggestions/i, 'suggestions'], [/verify sources/i, 'citations'],
+    [/best fit model/i, 'model'],        [/mind map/i, 'mindmap'],
+    [/audio overview/i, 'audio'],
+  ];
+  const tourForCard = (card) => {
+    const t = card && card.querySelector('.wn-title');
+    const s = t ? t.textContent : '';
+    for (const [re, name] of TOUR_BY_TITLE) if (re.test(s)) return name;
+    return null;
+  };
+
+  /* ── feature popups ── */
+  const closeAllPops = () => {
+    document.querySelectorAll('.pop.on').forEach((p) => p.classList.remove('on'));
+    popScrim.classList.remove('on');
+  };
+  const openModal = (id) => { popScrim.classList.add('on'); $(id).classList.add('on'); };
+  const anchorPop = (id, anchor, place) => {
+    const p = $(id), r = anchor.getBoundingClientRect(), w = p.offsetWidth, h = p.offsetHeight;
+    let left, top;
+    if (place === 'above')      { left = r.left;     top = r.top - h - 8; }
+    else if (place === 'below-right') { left = r.right - w; top = r.bottom + 8; }
+    else                        { left = r.left;     top = r.bottom + 8; }
+    left = Math.max(10, Math.min(left, window.innerWidth - w - 10));
+    top  = Math.max(10, Math.min(top,  window.innerHeight - h - 10));
+    p.style.left = left + 'px'; p.style.top = top + 'px';
+    p.classList.add('on');
+  };
+  document.querySelectorAll('[data-pop-close]').forEach((b) =>
+    b.addEventListener('click', closeAllPops));
+  popScrim.addEventListener('click', closeAllPops);
+
+  /* ── the suggested-edits example source ── */
+  const SUG_EDITS = {
+    'pv-hl1': 'To align teams on cloud-adoption strategy for Q4 — clarifying how product, sales, and success each contribute across key areas.',
+    'pv-hl2': 'Mid-market interest in hybrid cloud is rising. Buyers want simpler onboarding and clearer billing.',
+  };
+  const SUG_ORIG = {
+    'pv-hl1': $('pv-hl1').textContent, 'pv-hl2': $('pv-hl2').textContent,
+  };
+  const showSuggestions = () => {
+    $('pv-sug').classList.add('on');
+    ['sg1', 'sg2'].forEach((id, i) => setTimeout(() => $(id).classList.add('on'), 60 + i * 130));
+  };
+  pageView.addEventListener('click', (e) => {
+    const ap = e.target.closest('.sg-apply');
+    if (ap && !ap.disabled) {
+      const el = $(ap.dataset.apply);
+      el.textContent = SUG_EDITS[ap.dataset.apply];
+      el.classList.add('done');
+      ap.textContent = 'Applied'; ap.disabled = true; ap.style.opacity = '.55';
+    }
+    if (e.target.closest('#pv-suggest')) showSuggestions();
+  });
+  $('pv-back').addEventListener('click', () => { resetNb(); });
+
+  /* ── the model-picker example answer, seeded into the chat rail ── */
+  const seedAnswer = () => {
+    if ($('ex-seed')) return;
+    const el = document.createElement('div');
+    el.id = 'ex-seed';
+    el.innerHTML =
+      '<div class="ex-q">Summarize what customers said about setup.</div>' +
+      '<div class="ex-answer" style="margin-top:12px;"><div id="ex-ans" style="font-size:13px;line-height:1.6;color:#333;">' +
+      'Across the interviews, first-run setup was the most common drop-off point. Most users pushed through it, and weekly usage climbed steadily afterward.' +
+      '</div><div class="ex-tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 10a8 8 0 0 0-14-4M4 14a8 8 0 0 0 14 4"/></svg>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 10v11M18 5H9v16h9l3-8-2-3h-4z"/></svg>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 14V3M6 10v11M6 21l-3-4M6 21l3-4"/></svg></div></div>';
+    chatBody.classList.add('seeding');
+    chatBody.insertBefore(el, chatBody.firstChild);
+  };
+  const reModel = (name) => {
+    $('chat-model').childNodes[0].nodeValue = name + ' ';
+    const ans = $('ex-ans');
+    if (ans) {
+      ans.style.opacity = '.35';
+      setTimeout(() => {
+        ans.textContent = 'Setup was the clearest friction point: interviewees described the first-run experience as the hardest step, though usage recovered quickly once past it. Sharing and traceable sources came up as the strongest drivers of return use.';
+        ans.style.opacity = '1';
+      }, 260);
+    }
+  };
+
+  /* ── reset the notebook to a clean slate before/after any tour ── */
+  function resetNb() {
+    closeAllPops();
+    $('cc-sources').classList.remove('show');
+    $('chat-model').childNodes[0].nodeValue = 'Auto ';
+    const seed = $('ex-seed'); if (seed) seed.remove();
+    chatBody.classList.remove('seeding');
+    pageView.classList.remove('on');
+    $('pv-sug').classList.remove('on');
+    document.querySelectorAll('.sg-card').forEach((c) => c.classList.remove('on'));
+    Object.keys(SUG_ORIG).forEach((id) => {
+      const el = $(id); el.textContent = SUG_ORIG[id]; el.classList.remove('done');
+    });
+    document.querySelectorAll('.sg-apply').forEach((b) => {
+      b.textContent = 'Apply'; b.disabled = false; b.style.opacity = '';
+    });
+  }
+
+  /* ── tour definitions: each step spotlights `sel`, and clicking it runs `act`
+        (which opens the next surface) before the tour moves on ── */
+  const TOURS = {
+    references: { steps: [
+      { sel: '#nb-ref', place: 'right', cap: 'Open <b>Reference</b> to bring in files, meetings, and emails.',
+        act: () => openModal('pop-refs') } ] },
+    draft: { steps: [
+      { sel: '#qc-row', place: 'below', cap: 'Under <b>Quick Create</b>, pick <b>Presentation</b> or <b>Document</b> to turn your notebook into a deliverable.',
+        act: () => { openModal('pop-draft'); setTimeout(() => $('dr-tile').classList.add('on'), 1400); } } ] },
+    share: { steps: [
+      { sel: '#nb-share', place: 'below', cap: 'Click <b>Share</b> to co-create with your team.',
+        act: () => anchorPop('pop-share', $('nb-share'), 'below-right') },
+      { sel: '#sh-auto', place: 'left', cap: 'Add a teammate — their name autocompletes from your org.',
+        pre: () => setTimeout(() => $('sh-auto').classList.add('on'), 40), act: () => {} } ] },
+    audio: { steps: [
+      { sel: '#qc-audio', place: 'below', cap: 'Click <b>Audio overview</b> to turn the notebook into a podcast-style rundown.',
+        act: () => openModal('pop-audio') } ] },
+    mindmap: { steps: [
+      { sel: '#qc-mind', place: 'below', cap: 'Click <b>Mind map</b> to visualize themes and relationships.',
+        act: () => openModal('pop-mind') } ] },
+    connectors: { steps: [
+      { sel: '#cc-globe', place: 'above', cap: 'In the chat composer, click the <b>connectors</b> icon.',
+        act: () => $('cc-sources').classList.add('show') },
+      { sel: '#cc-sources', place: 'above', cap: 'Now open <b>Sources</b>.',
+        act: () => anchorPop('pop-sources', $('cc-sources'), 'above') } ] },
+    citations: { steps: [
+      { sel: '#cite-1', place: 'right', cap: 'Click a <b>citation</b> to jump straight to the source passage.',
+        act: () => $('pop-cites').classList.add('on') } ] },
+    model: { setup: seedAnswer, steps: [
+      { sel: '#chat-model', place: 'below-left', cap: 'Open the <b>model picker</b> at the top of chat.',
+        act: () => anchorPop('pop-model', $('chat-model'), 'below-right') },
+      { sel: '#md-gpt', place: 'left', cap: 'Choose the model that best fits the task — like <b>GPT 5.5 Thinking</b>.',
+        act: () => { closeAllPops(); reModel('GPT 5.5'); } } ] },
+    suggestions: { setup: () => pageView.classList.add('on'), steps: [
+      { sel: '#pv-suggest', place: 'right', cap: 'On a page, click <b>Suggest edits</b> and Copilot reviews it for clarity.',
+        act: showSuggestions },
+      { sel: '#sg1 .sg-apply', place: 'left', cap: 'Apply a suggestion in one click and the text tightens up.',
+        act: () => { const b = document.querySelector('#sg1 .sg-apply'); if (b) b.click(); } } ] },
+  };
+
+  /* ── the coach-mark runner ── */
+  let tour = null, tix = 0;
+  const hideCoach = () => { coach.style.display = 'none'; coachTip.classList.remove('on'); };
+
+  function placeCoach(el, step) {
+    const r = el.getBoundingClientRect(), pad = 6;
+    const hx = r.left - pad, hy = r.top - pad, hw = r.width + pad * 2, hh = r.height + pad * 2;
+    Object.assign(coachHole.style, { left: hx + 'px', top: hy + 'px', width: hw + 'px', height: hh + 'px' });
+    $('coach-step').textContent = tour.steps.length > 1 ? 'Step ' + (tix + 1) + ' of ' + tour.steps.length : 'Try it';
+    $('coach-cap').innerHTML = step.cap;
+    let place = step.place || 'below';
+    const tipPlace = place === 'below-left' ? 'below' : place;
+    coachTip.setAttribute('data-place', tipPlace);
+    coachTip.style.left = '0px'; coachTip.style.top = '0px';
+    const tw = coachTip.offsetWidth, th = coachTip.offsetHeight;
+    let tl, tt;
+    if (place === 'above')       { tl = hx; tt = hy - th - 14; }
+    else if (place === 'left')   { tl = hx - tw - 14; tt = hy; }
+    else if (place === 'right')  { tl = hx + hw + 14; tt = hy; }
+    else if (place === 'below-left') { tl = hx + hw - tw; tt = hy + hh + 14; }
+    else                         { tl = hx; tt = hy + hh + 14; }
+    tl = Math.max(10, Math.min(tl, window.innerWidth - tw - 10));
+    tt = Math.max(10, Math.min(tt, window.innerHeight - th - 10));
+    coachTip.style.left = tl + 'px'; coachTip.style.top = tt + 'px';
+    requestAnimationFrame(() => coachTip.classList.add('on'));
+  }
+
+  function renderStep() {
+    const step = tour.steps[tix];
+    if (step.pre) step.pre();
+    requestAnimationFrame(() => {
+      const el = document.querySelector(step.sel);
+      if (!el) { endTour(false); return; }
+      el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      coach.style.display = 'block';
+      coachTip.classList.remove('on');
+      requestAnimationFrame(() => placeCoach(el, step));
+    });
+  }
+  function endTour() { tour = null; hideCoach(); }
+
+  coachHole.addEventListener('click', () => {
+    if (!tour) return;
+    const step = tour.steps[tix];
+    coachTip.classList.remove('on');
+    if (step.act) step.act();
+    tix++;
+    if (tix >= tour.steps.length) { endTour(); return; }
+    setTimeout(renderStep, 260);
+  });
+  $('coach-skip').addEventListener('click', () => { endTour(); closeAllPops(); resetNb(); });
+
+  function startTour(name) {
+    const t = TOURS[name]; if (!t) return;
+    closeFeature(); closePanel();
+    resetNb();
+    show('nb');
+    if (t.setup) t.setup();
+    tour = t; tix = 0;
+    setTimeout(renderStep, 300);
+  }
+
+  // keep coach marks glued to their targets if the window is resized mid-tour
+  window.addEventListener('resize', () => {
+    if (!tour) return;
+    const el = document.querySelector(tour.steps[tix].sel);
+    if (el) placeCoach(el, tour.steps[tix]);
   });
 
-  // "Try it" is inert by default, except on cards that carry a data-try link to
-  // a worked example — those navigate to the example page.
+  /* ── "Try it": run a guided tour when one is defined, else fall back to the
+        card's worked-example link (card 2) ── */
   function inert(root) {
     root.querySelectorAll('.wn-try').forEach((b) => b.addEventListener('click', (e) => {
       e.preventDefault();
-      const card = b.closest('[data-try]');
-      if (card) window.location.href = card.getAttribute('data-try');
+      const card = b.closest('.wn-card');
+      const name = tourForCard(card);
+      if (name) { startTour(name); return; }
+      const link = card && card.getAttribute('data-try');
+      if (link) window.location.href = link;
     }));
   }
   inert(document);
+
+  // Escape unwinds the topmost layer: an open tour/popup first, then the panel
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (tour || document.querySelector('.pop.on') || pageView.classList.contains('on')) {
+      endTour(); closeAllPops(); resetNb();
+    } else if (ftModal.classList.contains('on')) closeFeature();
+    else closePanel();
+  });
 
   show('home');
 })();

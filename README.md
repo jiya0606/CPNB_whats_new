@@ -42,5 +42,10 @@ Dismiss hides the banner for the session only; a reload brings it back, so each 
 
 Back out of any screen with the chevron at the top left.
 
+## "Try it" — guided tours
+Most **"Try it"** buttons now teach *where* a feature lives instead of jumping to a canned page. Clicking one drops the user into the notebook and drives a **coach-mark tour**: a spotlight ring pulses over the exact control, a caption explains the step, and clicking the highlight walks forward — through multi-step paths — until the real feature surface opens (Select References, Share, the connector Sources flyout, the citations panel, the model picker, audio Customize, a mind map, or a suggested-edits page). **Skip** in the caption (or **Escape**) exits and resets.
+
+The tour a card launches is matched by its title in `TOURS` / `TOUR_BY_TITLE` (JS). Two cards are exceptions: **card 2 (Send chat responses to a page)** stays a type-2 *action* demo and still navigates to `card02-example.html`; every other card runs a tour. Onboarding cards jump into the *Customer Feedback Themes and Next Steps* notebook; the four "New" cards run their tour in the notebook already on screen. For the two features with no in-notebook home yet — **in-line suggestions** and **best-fit model** — the tour first opens a small example source (an example page / a seeded chat answer, both with fabricated generic content) and runs the flow there.
+
 ## How the cards are shared
 All ten cards are authored once inside `<template id="wn-cards">` and cloned into whichever screen needs them — the four `data-new="1"` cards to the panel, the other six to the new-notebook rail, and the connectors card again for the banner modal. Edit a card once and every screen follows. The blown-up card scales its mock (`.wn-card.lg`) rather than reflowing it, since each mini-mock is built at fixed pixel sizes.
